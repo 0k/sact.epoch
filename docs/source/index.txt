@@ -1,0 +1,41 @@
+.. -*- rst -*-
+.. vim:ft=rst
+
+sact.epoch documentation
+========================
+
+.. include:: overview.txt
+
+
+What's new
+==========
+
+.. toctree::
+   :maxdepth: 2
+
+   whatsnew
+
+Todo & changelog
+================
+
+.. toctree::
+   :maxdepth: 2
+
+   todo
+   changelog
+
+Meta information
+================
+
+.. toctree::
+   :maxdepth: 2
+
+   copyright
+   licence
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
