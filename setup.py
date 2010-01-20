@@ -37,6 +37,9 @@ setup(
     install_requires=[
         'setuptools',
         # -*- Extra requirements: -*-
+        'zope.interface',
+        'zope.component',
+        'pytz',
     ],
     extras_require={'test': [
         'zope.testing',
