@@ -72,6 +72,13 @@ class ManageableClock(Clock):
     >>> mc.is_running
     False
 
+    Stoping while running should do nothing:
+
+    >>> mc.stop()
+    >>> mc.is_running
+    False
+
+
     Restarting time
     ---------------
 
@@ -82,6 +89,18 @@ class ManageableClock(Clock):
     ...              % (t1, t2)
     >>> mc.is_running
     True
+
+    Restarting while running should do nothing:
+
+    >>> mc.start()
+    >>> mc.is_running
+    True
+
+    >>> t3 = mc.ts
+    >>> assert t1 < t3, \
+    ...    'time %r should be superior to %r and it isn\'t' \
+    ...    % (t3, t1)
+
 
     Setting time
     ------------
@@ -110,6 +129,13 @@ class ManageableClock(Clock):
     ...    'clock should have been running and thus timestamp should be greater than 30.' \
     ...    'It was %r.' % ts
 
+    Setting time should not stop the clock if it was running:
+
+    >>> mc.ts = 20
+    >>> mc.is_running
+    True
+
+
     Altering with wait
     ------------------
 
@@ -134,6 +160,8 @@ class ManageableClock(Clock):
         self._ft = None ## freezed time
 
     def start(self):
+        if self.is_running:
+            return
         ## use _ft to calculate the time delta
         self.delta = self.ts - self.delta - self._ft
         self._ft = None
@@ -154,7 +182,8 @@ class ManageableClock(Clock):
     def set_ts(self, value):
         self.delta = value - time.time()
         # don't forget to update self._ft
-        self._ft = value
+        if self._ft is not None:
+            self._ft = value
 
     ts = property(get_ts, set_ts)
 

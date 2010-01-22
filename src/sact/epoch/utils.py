@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 .. :doctest:
+
+
 """
 
 import time
 import datetime
 import pytz
+import calendar
 
 
 ZERO=datetime.timedelta(seconds=0)
@@ -20,9 +23,9 @@ def datetime_to_timestamp(dt):
     Usage
     =====
 
-    >>> import datetime
     >>> from sact.epoch import datetime_to_timestamp
     >>> from sact.epoch import utc_mktime
+    >>> import datetime
 
     >>> epoch = datetime.datetime(1970,1,1)
     >>> datetime_to_timestamp(epoch)
@@ -55,6 +58,7 @@ def ts2iso(ts):
 
 def localtime_to_utctime(dt):
     """Convert local time to utc time.
+
     The datetime argument must be set with tzinfo.
     It is used only for test.
 
@@ -273,3 +277,42 @@ class TzLocal(datetime.tzinfo):
         tt = time.localtime(stamp)
         return tt.tm_isdst > 0
 
+
+def lt_strptime_to_utc_ts(str, format, tzinfo=None):
+    """Returns an UTC timestamp from user defined format localtime strptime
+
+    Optionaly you can specify tzinfo which will be defaulted to local timezone.
+
+    Usage
+    =====
+
+    >>> from sact.epoch import lt_strptime_to_utc_ts
+
+    Let's create a Sample GMT timezone. Notice that it is 5 minute
+    ahead from UTC.
+
+    >>> class GMTExample(datetime.tzinfo):
+    ...     def utcoffset(self,dt):
+    ...         return datetime.timedelta(hours=0,minutes=5)
+    ...     def tzname(self,dt):
+    ...         return "GMT +5m"
+    ...     def dst(self,dt):
+    ...         return datetime.timedelta(0)
+
+    Let's check that 'local' EPOCH is 5 minutes ahead from real UTC EPOCH:
+
+    >>> lt_strptime_to_utc_ts('1970-01-01 00:05',
+    ...     format='%Y-%m-%d %H:%M', tzinfo=GMTExample())
+    0
+
+    """
+
+    if tzinfo is None:
+        tzinfo = TzLocal()
+
+    lt_time_tuple = time.strptime(str, format)
+
+    naive_dt = datetime.datetime.strptime(str, format)
+    lt_dt = naive_dt.replace(tzinfo=tzinfo)
+    utc_ts = calendar.timegm(lt_dt.utctimetuple())
+    return utc_ts
