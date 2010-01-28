@@ -35,7 +35,7 @@ class Clock(object):
     If we need a full object we should use:
 
     >>> c.time
-    datetime.datetime(...)
+    <Time ...>
 
     """
 
@@ -44,7 +44,8 @@ class Clock(object):
     @property
     def time(self):
         """Should return later a Time object"""
-        return datetime.datetime.utcfromtimestamp(self.ts)
+
+        return Time.utcfromtimestamp(self.ts)
 
     @property
     def ts(self):
@@ -209,7 +210,7 @@ class ManageableClock(Clock):
 DefaultClock = Clock()
 
 
-class Time(object):
+class Time(datetime.datetime):
     """Time Factory
 
 
@@ -220,13 +221,10 @@ class Time(object):
 
     >>> from sact.epoch.clock import Time
     >>> Time.now()
-    datetime.datetime(...)
+    <Time ...+00:00>
 
-    >>> Time.now_utc()
-    datetime.datetime(..., tzinfo=<TimeZone: UTC>)
+    Notice that it has a timezone information set.
 
-    >>> Time.now_lt()
-    datetime.datetime(..., tzinfo=<...TzSystem object...>)
 
     We can give a better view thanks to a manageable clock
     as time reference:
@@ -254,29 +252,112 @@ class Time(object):
     Here is the result of each function:
 
     >>> Time.now()
-    datetime.datetime(1970, 1, 1, 0, 0)
-
-    >>> Time.now_utc()
-    datetime.datetime(1970, 1, 1, 0, 0, tzinfo=<...UTC...>)
+    <Time 1970-01-01 00:00:00+00:00>
 
     >>> Time.now_lt()
-    datetime.datetime(1970, 1, 1, 0, 5, tzinfo=<...TzTest...>)
+    <Time 1970-01-01 00:05:00+00:05>
 
     Please note that there are 5 minutes of diff to UTC
 
+
+    Instanciation
+    =============
+
+    >>> Time(1980, 01, 01)
+    <Time 1980-01-01 00:00:00+00:00>
 
     """
 
     classProvides(ITime)
 
-    @staticmethod
-    def now():
-        return queryUtility(IClock, default=DefaultClock).time
+    def __new__(cls, *args, **kwargs):
+        if 'tzinfo' not in kwargs and len(args) < 8:
+            # XXXjballet: to test
+            kwargs['tzinfo'] = UTC()
+        return super(Time, cls).__new__(cls, *args, **kwargs)
+
+    def __repr__(self):
+        return "<Time %s>" % self
+
+    # XXXjballet: to test
+    @classmethod
+    def from_datetime(cls, dt):
+        """Convert a datetime object with timezone to a Time object
+
+        This method provides a handy way to convert datetime objects to Time
+        objects:
+
+        >>> import datetime
+        >>> from sact.epoch import UTC
+        >>> dt = datetime.datetime(2000, 1, 1, tzinfo=UTC())
+        >>> Time.from_datetime(dt)
+        <Time 2000-01-01 00:00:00+00:00>
+
+        The provided datetime should contain a timezone information or the
+        conversion will fail:
+
+        >>> Time.from_datetime(datetime.datetime.now())
+        Traceback (most recent call last):
+        ...
+        ValueError: no timezone set for ...
+
+        """
+
+        if dt.tzinfo is None:
+            raise ValueError("no timezone set for %r" % dt)
+
+        return cls(dt.year, dt.month, dt.day, dt.hour,
+                   dt.minute, dt.second, dt.microsecond,
+                   dt.tzinfo)
 
     @staticmethod
-    def now_utc():
-        return Time.now().replace(tzinfo=UTC())
+    def now():
+        utility = queryUtility(IClock, default=DefaultClock)
+        return utility.time.replace(tzinfo=UTC())
 
     @staticmethod
     def now_lt():
-        return Time.now_utc().astimezone(tz=TzLocal())
+        return Time.now().astimezone(TzLocal())
+
+    @classmethod
+    def utcfromtimestamp(cls, ts):
+        """Return a UTC datetime from a timestamp.
+
+        >>> Time.utcfromtimestamp(0)
+        <Time 1970-01-01 00:00:00+00:00>
+
+        """
+
+        dt = super(Time, cls).utcfromtimestamp(ts)
+        return dt.replace(tzinfo=UTC())
+
+    @classmethod
+    def strptime(cls, value, format, tzinfo):
+        """Parse a string to create a Time object.
+
+        >>> from sact.epoch import UTC, TzTest
+        >>> Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
+        <Time 2000-01-01 00:00:00+00:00>
+
+        >>> tz_test = TzTest()
+        >>> Time.strptime('2000-01-01', '%Y-%m-%d', tz_test).tzinfo == tz_test
+        True
+
+        """
+
+        dt = super(Time, cls).strptime(value, format)
+        return dt.replace(tzinfo=tzinfo)
+
+    def astimezone(self, tz):
+        """Convert Time object to another timezone and return a Time object
+
+        This overrides the datetime's method to return a Time object instead of
+        a datetime object:
+
+        >>> type(Time.now().astimezone(TzTest()))
+        <class 'sact.epoch...Time'>
+
+        """
+
+        dt = super(Time, self).astimezone(tz)
+        return self.from_datetime(dt)
