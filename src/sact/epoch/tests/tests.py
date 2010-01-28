@@ -1,4 +1,4 @@
 """Entry point for tests."""
 
-import z3c.testsetup
-test_suite = z3c.testsetup.register_all_tests('sact.epoch')
+import sact.test
+test_suite = sact.test.register_all_tests('sact.epoch')

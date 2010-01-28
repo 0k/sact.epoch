@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 .. :doctest:
+
 """
 
 
@@ -11,6 +12,7 @@ from zope.interface import classProvides, implements
 from zope.component import queryUtility
 
 from .interfaces import ITime, IClock
+from .timezone import UTC, TzLocal
 
 
 class Clock(object):
@@ -210,9 +212,58 @@ DefaultClock = Clock()
 class Time(object):
     """Time Factory
 
+
+    Usage
+    =====
+
+    This is quite straightforward to use:
+
     >>> from sact.epoch.clock import Time
     >>> Time.now()
     datetime.datetime(...)
+
+    >>> Time.now_utc()
+    datetime.datetime(..., tzinfo=<TimeZone: UTC>)
+
+    >>> Time.now_lt()
+    datetime.datetime(..., tzinfo=<...TzSystem object...>)
+
+    We can give a better view thanks to a manageable clock
+    as time reference:
+
+    >>> from sact.epoch.clock import ManageableClock
+    >>> clock = ManageableClock()
+
+    We will stop the time to epoch:
+
+    >>> clock.stop()
+    >>> clock.ts = 0
+
+    Let's set it as reference:
+
+    >>> test.ZCA.registerUtility(clock)
+
+    Now, let's set our TzTest as local timezone, remember it has 5 minute
+    difference to UTC:
+
+    >>> from sact.epoch import TzTest
+    >>> from sact.epoch.interfaces import ITimeZone
+
+    >>> test.ZCA.registerUtility(TzTest(), ITimeZone, name='local')
+
+    Here is the result of each function:
+
+    >>> Time.now()
+    datetime.datetime(1970, 1, 1, 0, 0)
+
+    >>> Time.now_utc()
+    datetime.datetime(1970, 1, 1, 0, 0, tzinfo=<...UTC...>)
+
+    >>> Time.now_lt()
+    datetime.datetime(1970, 1, 1, 0, 5, tzinfo=<...TzTest...>)
+
+    Please note that there are 5 minutes of diff to UTC
+
 
     """
 
@@ -221,3 +272,11 @@ class Time(object):
     @staticmethod
     def now():
         return queryUtility(IClock, default=DefaultClock).time
+
+    @staticmethod
+    def now_utc():
+        return Time.now().replace(tzinfo=UTC())
+
+    @staticmethod
+    def now_lt():
+        return Time.now_utc().astimezone(tz=TzLocal())

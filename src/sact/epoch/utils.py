@@ -8,11 +8,9 @@
 
 import time
 import datetime
-import pytz
 import calendar
 
-
-ZERO=datetime.timedelta(seconds=0)
+from .timezone import UTC
 
 
 def datetime_to_timestamp(dt):
@@ -101,7 +99,7 @@ def localtime_to_utctime(dt):
 
     if dt.tzinfo is None:
         raise Exception("Datetime is naive, need tzinfo value")
-    return dt.astimezone(pytz.utc)
+    return dt.astimezone(UTC())
 
 
 def iso2ts(iso_repr):
@@ -189,94 +187,6 @@ def max_interval(nbseconds, timestamp):
     return timestamp - (timestamp % nbseconds) + nbseconds
 
 
-class UTC(datetime.tzinfo):
-    """Represent the UTC timezone.
-
-    From http://docs.python.org/library/datetime.html#tzinfo-objects examples
-
-    """
-
-    def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return ZERO
-
-    def __repr__(self):
-        return "<TimeZone: UTC>"
-
-
-class TzLocal(datetime.tzinfo):
-    """Get the timezone locale. It is used for datetime object.
-    This object get the local DST and utcoffset.
-
-    More explanation about how it is work for utcoffset:
-
-    time.daylight is Nonzero if a DST timezone is defined.
-    In this case we have two different values in stdoffset and dstoffset.
-    For example for timezone 'Europe/Paris' we have:
-    stdoffset = -3600
-    dstoffset = -7200
-
-    In `utcoffset` method, we check for the daylight saving or not and adjust
-    offset in consequence.
-
-    """
-
-    zero = datetime.timedelta(0)
-
-    #Get the right offset with DST or not
-    stdoffset = datetime.timedelta(seconds = -time.timezone)
-    if time.daylight:
-        dstoffset = datetime.timedelta(seconds = -time.altzone)
-    else:
-        dstoffset = stdoffset
-
-    #Get the DST adjustement in minutes
-    dstdiff =  dstoffset - stdoffset
-
-    def utcoffset(self, dt):
-        """Return offset of local time from UTC, in minutes
-        """
-
-        if self._isdst(dt):
-            return self.dstoffset
-        else:
-            return self.stdoffset
-
-    def dst(self, dt):
-        """Return the daylight saving time (DST) adjustment, in minutes
-        """
-
-        if self._isdst(dt):
-            return self.dstdiff
-        else:
-            return self.zero
-
-    def tzname(self, dt):
-        """Return the time zone name corresponding to the datetime object dt
-        """
-
-        return time.tzname[self._isdst(dt)]
-
-    def _isdst(self, dt):
-        """Return True or False depending of tm_isdst value
-
-        Convert dt in timestamp, and get time object with this timestamp to get
-        the localtime and see if this time is dst or not
-
-        """
-
-        tt = (dt.year, dt.month, dt.day,
-              dt.hour, dt.minute, dt.second,
-              dt.weekday(), 0, -1)
-        stamp = time.mktime(tt)
-        tt = time.localtime(stamp)
-        return tt.tm_isdst > 0
-
 
 def lt_strptime_to_utc_ts(str, format, tzinfo=None):
     """Returns an UTC timestamp from user defined format localtime strptime
@@ -286,29 +196,21 @@ def lt_strptime_to_utc_ts(str, format, tzinfo=None):
     Usage
     =====
 
-    >>> from sact.epoch import lt_strptime_to_utc_ts
+    >>> from sact.epoch import lt_strptime_to_utc_ts, TzTest
 
-    Let's create a Sample GMT timezone. Notice that it is 5 minute
+    Let's use our testing GMT timezone. Notice that it is 5 minute
     ahead from UTC.
-
-    >>> class GMTExample(datetime.tzinfo):
-    ...     def utcoffset(self,dt):
-    ...         return datetime.timedelta(hours=0,minutes=5)
-    ...     def tzname(self,dt):
-    ...         return "GMT +5m"
-    ...     def dst(self,dt):
-    ...         return datetime.timedelta(0)
 
     Let's check that 'local' EPOCH is 5 minutes ahead from real UTC EPOCH:
 
     >>> lt_strptime_to_utc_ts('1970-01-01 00:05',
-    ...     format='%Y-%m-%d %H:%M', tzinfo=GMTExample())
+    ...     format='%Y-%m-%d %H:%M', tzinfo=TzTest())
     0
 
     """
 
     if tzinfo is None:
-        tzinfo = TzLocal()
+        tzinfo = tz.TzLocal()
 
     lt_time_tuple = time.strptime(str, format)
 

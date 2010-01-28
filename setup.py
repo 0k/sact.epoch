@@ -44,7 +44,7 @@ setup(
     extras_require={'test': [
         'zope.testing',
         # -*- Extra requirements: -*-
-        'z3c.testsetup',
+        'sact.test',
     ],
     },
     entry_points="""

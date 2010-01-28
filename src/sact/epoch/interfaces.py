@@ -2,6 +2,19 @@
 from zope.interface import Interface, Attribute
 
 
+class ITimeZone(Interface):
+    """Standard TimeZone interface as defined in datetime module"""
+
+    def utcoffset(dt):
+        """Return offset of local time from UTC, in minutes"""
+
+    def dst(dt):
+        """Return the daylight saving time (DST) adjustment, in minutes"""
+
+    def tzname(dt):
+        """Return the time zone name corresponding to the datetime object dt"""
+
+
 class ITime(Interface):
     """Factory to make time object.
 
