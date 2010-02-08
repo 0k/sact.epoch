@@ -13,6 +13,7 @@ from zope.component import queryUtility
 
 from .interfaces import ITime, IClock
 from .timezone import UTC, TzLocal
+from sact.epoch.utils import datetime_to_timestamp
 
 
 class Clock(object):
@@ -361,3 +362,25 @@ class Time(datetime.datetime):
 
         dt = super(Time, self).astimezone(tz)
         return self.from_datetime(dt)
+
+    @property
+    def timestamp(self):
+        """Convert this Time instance in a unix timestamp in UTC
+
+        See sact.epoch.utils
+
+        >>> Time(1970, 1, 1, 0, 0, 1).timestamp
+        1
+
+        """
+        return datetime_to_timestamp(self)
+
+    @property
+    def iso_local(self):
+        """Return the iso format in local time
+
+        >>> Time(1970, 1, 1, 1, 1).iso_local
+        '1970-01-01 01:06:00+00:05'
+
+        """
+        return self.astimezone(TzLocal()).isoformat(" ")
