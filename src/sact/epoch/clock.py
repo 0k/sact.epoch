@@ -194,7 +194,7 @@ class ManageableClock(Clock):
     def wait(self, timedelta=None, **kwargs):
         """Provide a convenient shortcut to alter the current time
 
-        timedelta can be an int/float or a timedelta objet from datetime.timedelta
+        timedelta can be an int/float or a timedelta objet from timedelta
 
         """
         if timedelta is None:
@@ -267,11 +267,25 @@ class Time(datetime.datetime):
     >>> Time(1980, 01, 01)
     <Time 1980-01-01 00:00:00+00:00>
 
+    Instanciate a Time from a datetime
+
+    >>> from datetime import datetime
+    >>> d = datetime(1970, 01, 01, tzinfo=TzTest())
+    >>> t = Time(d)
+    >>> t
+    <Time 1970-01-01 00:00:00+00:05>
+
+    >>> Time(t)
+    <Time 1970-01-01 00:00:00+00:05>
+
     """
 
     classProvides(ITime)
 
     def __new__(cls, *args, **kwargs):
+        if len(args) and isinstance(args[0], datetime.datetime):
+            return Time.from_datetime(args[0])
+
         if 'tzinfo' not in kwargs and len(args) < 8:
             # XXXjballet: to test
             kwargs['tzinfo'] = UTC()
@@ -280,7 +294,6 @@ class Time(datetime.datetime):
     def __repr__(self):
         return "<Time %s>" % self
 
-    # XXXjballet: to test
     @classmethod
     def from_datetime(cls, dt):
         """Convert a datetime object with timezone to a Time object
@@ -310,6 +323,46 @@ class Time(datetime.datetime):
         return cls(dt.year, dt.month, dt.day, dt.hour,
                    dt.minute, dt.second, dt.microsecond,
                    dt.tzinfo)
+
+    def __add__(self, delta):
+        """Override datetime '+' to return a Time object
+
+        Add a timedelta:
+
+        >>> Time(2010, 1, 1) + datetime.timedelta(days=1)
+        <Time 2010-01-02 00:00:00+00:00>
+
+        Add an other Time (send the original exception):
+
+        >>> Time(2010, 1, 1) + Time(1970, 1, 1)
+        Traceback (most recent call last):
+        ...
+        TypeError: unsupported operand type(s) for +: 'Time' and 'Time'
+
+        """
+        d = super(Time, self).__add__(delta)
+        if isinstance(d, datetime.datetime):
+            return self.from_datetime(d)
+        return d
+
+    def __sub__(self, delta):
+        """Override datetime '-' to return a Time object
+
+        Sub a timedelta:
+
+        >>> Time(2010, 1, 1) - datetime.timedelta(days=1)
+        <Time 2009-12-31 00:00:00+00:00>
+
+        Sub an other Time:
+
+        >>> Time(2010, 1, 2) - Time(2010, 1, 1)
+        datetime.timedelta(1)
+
+        """
+        d = super(Time, self).__sub__(delta)
+        if isinstance(d, datetime.datetime):
+            return self.from_datetime(d)
+        return d
 
     @staticmethod
     def now():
