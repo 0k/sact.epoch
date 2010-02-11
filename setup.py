@@ -12,7 +12,7 @@ def get_version(version):
     except:
         return version
 
-version = '0.1.0'
+version = '0.2.0dev'
 
 setup(
     name='sact.epoch',
