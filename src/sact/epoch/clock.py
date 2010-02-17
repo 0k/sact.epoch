@@ -16,6 +16,31 @@ from .timezone import UTC, TzLocal
 from sact.epoch.utils import datetime_to_timestamp
 
 
+def round_date(date):
+    """Round a timedelta to the last minute (remove seconds)
+
+    Setup:
+
+     >>> from sact.epoch import round_date, Time
+
+    Nothing to do:
+
+     >>> round_date(Time(2010, 1, 1, 1, 1, 0))
+     <Time 2010-01-01 01:01:00+00:00>
+
+    Round to 1 minute when we have 1 minute and 30 seconds:
+
+     >>> round_date(Time(2010, 1, 1, 1, 1, 30))
+     <Time 2010-01-01 01:01:00+00:00>
+
+    """
+    assert(isinstance(date, Time))
+
+    if date.second:
+        return date - datetime.timedelta(seconds=date.second)
+    return date
+
+
 class Clock(object):
     """Time Factory
 
@@ -437,3 +462,8 @@ class Time(datetime.datetime):
 
         """
         return self.astimezone(TzLocal()).isoformat(" ")
+
+    @property
+    def short_local(self):
+        """Idem than iso_local with without time zone"""
+        return self.iso_local[:-6]
