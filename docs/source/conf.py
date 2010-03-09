@@ -38,7 +38,7 @@ copyright = '2010, securactive'
 # The short X.Y version.
 version = '0.2'
 # The full version, including alpha/beta/rc tags.
-release = '0.2.0dev'
+release = '0.2.0'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
