@@ -303,6 +303,21 @@ class Time(datetime.datetime):
     >>> Time(t)
     <Time 1970-01-01 00:00:00+00:05>
 
+    Representations
+    ^^^^^^^^^^^^^^^
+
+    ISO:
+    >>> t.iso_local
+    '1970-01-01 00:00:00+00:05'
+
+    Short local (remove time zone):
+    >>> t.short_local
+    '1970-01-01 00:00:00'
+
+    Short short local (remove seconds):
+    >>> t.short_short_local
+    '1970-01-01 00:00'
+
     """
 
     classProvides(ITime)
@@ -466,4 +481,9 @@ class Time(datetime.datetime):
     @property
     def short_local(self):
         """Idem than iso_local with without time zone"""
-        return self.iso_local[:-6]
+        return self.astimezone(TzLocal()).strftime('%Y-%m-%d %H:%M:%S')
+
+    @property
+    def short_short_local(self):
+        """Idem without seconds"""
+        return self.astimezone(TzLocal()).strftime('%Y-%m-%d %H:%M')
