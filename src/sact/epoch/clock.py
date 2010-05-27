@@ -234,6 +234,7 @@ class ManageableClock(Clock):
 
 
 DefaultClock = Clock()
+DefaultManageableClock = ManageableClock()
 
 
 class Time(datetime.datetime):
