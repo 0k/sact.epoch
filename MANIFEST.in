@@ -1,3 +1,4 @@
 include docs/Makefile
 recursive-include docs/source/ *
+recursive-include src/*
 prune docs/build/
