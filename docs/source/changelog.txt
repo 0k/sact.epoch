@@ -5,6 +5,24 @@
 Changelog
 =========
 
+0.3.0 (03-06-2010)
+==================
+
+Packaging
+---------
+
+  - add src/* in manifest.in (Guillaume Savary)
+  - add src/* in manifest.in (oops) (Guillaume Savary)
+
+Others
+------
+
+  - Back to development: 0.3.0dev (Sebastien Douche)
+  - uniformisation of buildout.cfg (Valentin Lab)
+  - [US76PUSH7] change the Time object human representation (Guillaume Savary (GS))
+  - [US79PUSH4] add a default manageable clock (for tests) (Guillaume Savary (GS))
+
+
 0.2.0 (09-03-2010)
 ==================
 
