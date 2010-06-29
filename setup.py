@@ -1,15 +1,11 @@
 from setuptools import setup, find_packages
 
 def get_version(version):
-    try:
-        if "dev" in version:
-            import os
-            from mercurial import hg, ui
-            repo = hg.repository(ui.ui(),os.path.abspath(os.curdir))
-            return "%s-r%d" % (version, len(repo.changelog)-1)
-        else:
-            return version
-    except:
+    import datetime
+    if "dev" in version:
+        now = int(datetime.datetime.now().strftime('%Y%d%m%H%M'))
+        return "%s-r%d" % (version, now)
+    else:
         return version
 
 version = '0.4.0dev'
