@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 def get_version(version):
     import datetime
     if "dev" in version:
-        now = int(datetime.datetime.now().strftime('%Y%d%m%H%M'))
+        now = int(datetime.datetime.now().strftime('%Y%m%d%H%M'))
         return "%s-r%d" % (version, now)
     else:
         return version
