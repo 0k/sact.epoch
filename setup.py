@@ -8,7 +8,7 @@ def get_version(version):
     else:
         return version
 
-version = '0.4.0'
+version = '0.5.0dev'
 
 setup(
     name='sact.epoch',
