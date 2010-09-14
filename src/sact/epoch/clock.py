@@ -17,7 +17,7 @@ from sact.epoch.utils import datetime_to_timestamp
 
 
 def round_date(date):
-    """Round a timedelta to the last minute (remove seconds)
+    """Round a timedelta to the last minute (remove seconds and microseconds).
 
     Setup:
 
@@ -36,8 +36,9 @@ def round_date(date):
     """
     assert(isinstance(date, Time))
 
-    if date.second:
-        return date - datetime.timedelta(seconds=date.second)
+    if date.second or date.microsecond:
+        return date - datetime.timedelta(
+                        seconds=date.second, microseconds=date.microsecond)
     return date
 
 
