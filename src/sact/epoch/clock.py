@@ -56,7 +56,9 @@ class Clock(object):
     We can use property 'ts' to get the timestamp and it should change very
     accurately at each call:
 
-    >>> c.ts < c.ts
+    >>> t1 = c.ts
+    >>> t2 = c.ts
+    >>> t1 < t2
     True
 
     If we need a full object we should use:
