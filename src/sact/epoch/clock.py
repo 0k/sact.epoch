@@ -243,6 +243,16 @@ DefaultManageableClock = ManageableClock()
 class Time(datetime.datetime):
     """Time Factory
 
+      Time is an abstraction of a specific point of time. As a subclass of
+    datetime, it provides the same functionality. Additionaly it ensures that a
+    timezone is always associated to the Time instance, and some simple common
+    representation are provided as properties.
+
+      And most important: Time.now() will silently request for the registered
+    clock to get time information, allowing to manage time easily.
+
+      Same mecanism is used to get the local time zone, allowing to override
+    the detection of the local time zone when using Time.now_lt().
 
     Usage
     =====
@@ -253,11 +263,12 @@ class Time(datetime.datetime):
         >>> Time.now()
         <Time ...+00:00>
 
-    Notice that it has a timezone information set.
+    Notice that it has a timezone information set. Silently, the current time
+    was asked to the registered clock available, which is by default the normal
+    clock.
 
 
-    We can give a better view thanks to a manageable clock
-    as time reference:
+    We can give a better view thanks to a manageable clock as time reference:
 
         >>> from sact.epoch.clock import ManageableClock
         >>> clock = ManageableClock()
@@ -272,7 +283,7 @@ class Time(datetime.datetime):
     >>> from zope.component import globalSiteManager as gsm
     >>> gsm.registerUtility(clock)
 
-    Now, let's set our TzTest as local timezone, remember it has 5 minute
+    Now, let's set our TzTest as local timezone, remember it has 5 minutes
     difference to UTC:
 
     >>> from sact.epoch import testTimeZone
@@ -294,11 +305,14 @@ class Time(datetime.datetime):
     Instanciation
     =============
 
+    It takes same arguments than datetime legacy object:
 
-    Instanciate a Time from a datetime
         >>> Time(1980, 01, 01)
         <Time 1980-01-01 00:00:00+00:00>
 
+    Notice that in this case, it takes the UTC timezone.
+
+    Additionnaly it can take a real datetime as argument:
 
         >>> from datetime import datetime
         >>> d = datetime(1970, 01, 01, tzinfo=testTimeZone)
