@@ -10,6 +10,22 @@ from zope.component import queryUtility
 ZERO = datetime.timedelta(seconds=0)
 
 
+def is_dst(dt):
+    """Return True or False depending of tm_isdst value
+
+    Convert dt in timestamp, and get time object with this timestamp to get
+    the localtime and see if this time is dst or not
+
+    """
+
+    tt = (dt.year, dt.month, dt.day,
+          dt.hour, dt.minute, dt.second,
+          dt.weekday(), 0, -1)
+    stamp = time.mktime(tt)
+    tt = time.localtime(stamp)
+    return tt.tm_isdst > 0
+
+
 class UTC(datetime.tzinfo):
     """Represent the UTC timezone.
 
@@ -57,8 +73,6 @@ class TzSystem(datetime.tzinfo):
 
     implements(ITimeZone)
 
-    zero = datetime.timedelta(0)
-
     # Get the right offset with DST or not
     stdoffset = datetime.timedelta(seconds=(- time.timezone))
     if time.daylight:
@@ -72,38 +86,17 @@ class TzSystem(datetime.tzinfo):
     def utcoffset(self, dt):
         """Return offset of local time from UTC, in minutes"""
 
-        if self._isdst(dt):
-            return self.dstoffset
-        else:
-            return self.stdoffset
+        return self.dstoffset if is_dst(dt) else self.stdoffset
 
     def dst(self, dt):
         """Return the daylight saving time (DST) adjustment, in minutes"""
 
-        if self._isdst(dt):
-            return self.dstdiff
-        else:
-            return self.zero
+        return self.dstdiff if is_dst(dt) else ZERO
 
     def tzname(self, dt):
         """Return time zone name of the datetime object dt"""
 
-        return time.tzname[self._isdst(dt)]
-
-    def _isdst(self, dt):
-        """Return True or False depending of tm_isdst value
-
-        Convert dt in timestamp, and get time object with this timestamp to get
-        the localtime and see if this time is dst or not
-
-        """
-
-        tt = (dt.year, dt.month, dt.day,
-              dt.hour, dt.minute, dt.second,
-              dt.weekday(), 0, -1)
-        stamp = time.mktime(tt)
-        tt = time.localtime(stamp)
-        return tt.tm_isdst > 0
+        return time.tzname[is_dst(dt)]
 
 
 class TzTest(datetime.tzinfo):
@@ -116,9 +109,9 @@ class TzTest(datetime.tzinfo):
 
     def tzname(self, dt):
         return "GMT +5m"
-    def dst(self,dt):
-        return datetime.timedelta(0)
 
+    def dst(self, dt):
+        return ZERO
 
 
 testTimeZone = TzTest()
@@ -126,6 +119,6 @@ defaultLocalTimeZone = TzSystem()
 
 
 def TzLocal():
-    """Get local timezone with ZCA."""
-    return queryUtility(ITimeZone, name='local', default=DefaultLocalTimeZone)
+    """Get local timezone with ZCA"""
 
+    return queryUtility(ITimeZone, name='local', default=defaultLocalTimeZone)
