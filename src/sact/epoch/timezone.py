@@ -118,7 +118,9 @@ class TzTest(datetime.tzinfo):
         return datetime.timedelta(0)
 
 
-DefaultLocalTimeZone = TzSystem()
+
+testTimeZone = TzTest()
+defaultLocalTimeZone = TzSystem()
 
 
 def TzLocal():

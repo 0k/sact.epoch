@@ -269,15 +269,16 @@ class Time(datetime.datetime):
 
     Let's set it as reference:
 
-    >>> test.ZCA.registerUtility(clock)
+    >>> from zope.component import globalSiteManager as gsm
+    >>> gsm.registerUtility(clock)
 
     Now, let's set our TzTest as local timezone, remember it has 5 minute
     difference to UTC:
 
-    >>> from sact.epoch import TzTest
+    >>> from sact.epoch import testTimeZone
     >>> from sact.epoch.interfaces import ITimeZone
 
-    >>> test.ZCA.registerUtility(TzTest(), ITimeZone, name='local')
+    >>> gsm.registerUtility(testTimeZone, ITimeZone, name='local')
 
     Here is the result of each function:
 
@@ -491,3 +492,16 @@ class Time(datetime.datetime):
     def short_short_local(self):
         """Idem without seconds"""
         return self.astimezone(TzLocal()).strftime('%Y-%m-%d %H:%M')
+
+
+
+"""
+Let's unregister the test Timezone and test Clock:
+
+    >>> gsm.unregisterUtility(clock)
+    True
+
+    >>> gsm.unregisterUtility(testTimeZone, ITimeZone, 'local')
+    True
+
+"""
