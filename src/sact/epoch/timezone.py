@@ -7,7 +7,7 @@ from zope.interface import implements
 from zope.component import queryUtility
 
 
-ZERO=datetime.timedelta(seconds=0)
+ZERO = datetime.timedelta(seconds=0)
 
 
 class UTC(datetime.tzinfo):
@@ -36,13 +36,17 @@ class UTC(datetime.tzinfo):
 
 class TzSystem(datetime.tzinfo):
     """Get the timezone locale of the system. It is used for datetime object.
+
     This object get the local DST and utcoffset.
 
     More explanation about how it is work for utcoffset:
 
     time.daylight is Nonzero if a DST timezone is defined.
+
     In this case we have two different values in stdoffset and dstoffset.
+
     For example for timezone 'Europe/Paris' we have:
+
     stdoffset = -3600
     dstoffset = -7200
 
@@ -55,19 +59,18 @@ class TzSystem(datetime.tzinfo):
 
     zero = datetime.timedelta(0)
 
-    #Get the right offset with DST or not
-    stdoffset = datetime.timedelta(seconds = -time.timezone)
+    # Get the right offset with DST or not
+    stdoffset = datetime.timedelta(seconds=(- time.timezone))
     if time.daylight:
-        dstoffset = datetime.timedelta(seconds = -time.altzone)
+        dstoffset = datetime.timedelta(seconds=(- time.altzone))
     else:
         dstoffset = stdoffset
 
-    #Get the DST adjustement in minutes
+    # Get the DST adjustement in minutes
     dstdiff = dstoffset - stdoffset
 
     def utcoffset(self, dt):
-        """Return offset of local time from UTC, in minutes
-        """
+        """Return offset of local time from UTC, in minutes"""
 
         if self._isdst(dt):
             return self.dstoffset
@@ -75,8 +78,7 @@ class TzSystem(datetime.tzinfo):
             return self.stdoffset
 
     def dst(self, dt):
-        """Return the daylight saving time (DST) adjustment, in minutes
-        """
+        """Return the daylight saving time (DST) adjustment, in minutes"""
 
         if self._isdst(dt):
             return self.dstdiff
@@ -84,8 +86,7 @@ class TzSystem(datetime.tzinfo):
             return self.zero
 
     def tzname(self, dt):
-        """Return the time zone name corresponding to the datetime object dt
-        """
+        """Return time zone name of the datetime object dt"""
 
         return time.tzname[self._isdst(dt)]
 
@@ -110,9 +111,10 @@ class TzTest(datetime.tzinfo):
 
     implements(ITimeZone)
 
-    def utcoffset(self,dt):
-        return datetime.timedelta(hours=0,minutes=5)
-    def tzname(self,dt):
+    def utcoffset(self, dt):
+        return datetime.timedelta(hours=0, minutes=5)
+
+    def tzname(self, dt):
         return "GMT +5m"
     def dst(self,dt):
         return datetime.timedelta(0)

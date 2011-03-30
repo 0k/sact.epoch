@@ -18,7 +18,7 @@ class ITimeZone(Interface):
 class ITime(Interface):
     """Factory to make time object.
 
-    XXX Full interface should be specified later.
+    minimal interface
 
     """
 
@@ -29,7 +29,7 @@ class ITime(Interface):
 class IClock(Interface):
     """Factory to make time object.
 
-    XXX Full interface should be specified later.
+    minimal interface
 
     """
 

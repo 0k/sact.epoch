@@ -37,8 +37,8 @@ def round_date(date):
     assert(isinstance(date, Time))
 
     if date.second or date.microsecond:
-        return date - datetime.timedelta(
-                        seconds=date.second, microseconds=date.microsecond)
+        return date - datetime.timedelta(seconds=date.second,
+                                         microseconds=date.microsecond)
     return date
 
 
