@@ -21,17 +21,17 @@ def round_date(date):
 
     Setup:
 
-     >>> from sact.epoch import round_date, Time
+         >>> from sact.epoch import round_date, Time
 
     Nothing to do:
 
-     >>> round_date(Time(2010, 1, 1, 1, 1, 0))
-     <Time 2010-01-01 01:01:00+00:00>
+         >>> round_date(Time(2010, 1, 1, 1, 1, 0))
+         <Time 2010-01-01 01:01:00+00:00>
 
     Round to 1 minute when we have 1 minute and 30 seconds:
 
-     >>> round_date(Time(2010, 1, 1, 1, 1, 30))
-     <Time 2010-01-01 01:01:00+00:00>
+         >>> round_date(Time(2010, 1, 1, 1, 1, 30))
+         <Time 2010-01-01 01:01:00+00:00>
 
     """
     assert(isinstance(date, Time))
@@ -50,21 +50,21 @@ class Clock(object):
     Usage
     =====
 
-    >>> from sact.epoch.clock import Clock
-    >>> c = Clock()
+        >>> from sact.epoch.clock import Clock
+        >>> c = Clock()
 
     We can use property 'ts' to get the timestamp and it should change very
     accurately at each call:
 
-    >>> t1 = c.ts
-    >>> t2 = c.ts
-    >>> t1 < t2
-    True
+        >>> t1 = c.ts
+        >>> t2 = c.ts
+        >>> t1 < t2
+        True
 
     If we need a full object we should use:
 
-    >>> c.time
-    <Time ...>
+        >>> c.time
+        <Time ...>
 
     """
 
@@ -90,98 +90,98 @@ class ManageableClock(Clock):
     Usage
     =====
 
-    >>> from sact.epoch.clock import ManageableClock
-    >>> mc = ManageableClock()
+        >>> from sact.epoch.clock import ManageableClock
+        >>> mc = ManageableClock()
 
     Stopping time
     -------------
 
-    >>> mc.stop()
-    >>> t1 = mc.ts
-    >>> t2 = mc.ts
-    >>> assert t1 == t2, 'time %r should be equal to %r and it isn\'t' \
-    ...              % (t1, t2)
-    >>> mc.is_running
-    False
+        >>> mc.stop()
+        >>> t1 = mc.ts
+        >>> t2 = mc.ts
+        >>> assert t1 == t2, 'time %r should be equal to %r and it isn\'t' \
+        ...              % (t1, t2)
+        >>> mc.is_running
+        False
 
     Stoping while running should do nothing:
 
-    >>> mc.stop()
-    >>> mc.is_running
-    False
+        >>> mc.stop()
+        >>> mc.is_running
+        False
 
 
     Restarting time
     ---------------
 
-    >>> mc.start()
-    >>> t1 = mc.ts
-    >>> t2 = mc.ts
-    >>> assert t1 != t2, 'time %r should NOT be equal to %r and it is' \
-    ...              % (t1, t2)
-    >>> mc.is_running
-    True
+        >>> mc.start()
+        >>> t1 = mc.ts
+        >>> t2 = mc.ts
+        >>> assert t1 != t2, 'time %r should NOT be equal to %r and it is' \
+        ...              % (t1, t2)
+        >>> mc.is_running
+        True
 
     Restarting while running should do nothing:
 
-    >>> mc.start()
-    >>> mc.is_running
-    True
+        >>> mc.start()
+        >>> mc.is_running
+        True
 
-    >>> t3 = mc.ts
-    >>> assert t1 < t3, \
-    ...    'time %r should be superior to %r and it isn\'t' \
-    ...    % (t3, t1)
+        >>> t3 = mc.ts
+        >>> assert t1 < t3, \
+        ...    'time %r should be superior to %r and it isn\'t' \
+        ...    % (t3, t1)
 
 
     Setting time
     ------------
 
-    >>> mc.stop()
-    >>> mc.ts = 0
-    >>> mc.ts
-    0
-    >>> mc.start()
-    >>> ts = mc.ts
-    >>> assert ts > 0, \
-    ...    'clock should have been running and thus timestamp should be greater than 0.' \
-    ...    'It was %r.' % ts
+        >>> mc.stop()
+        >>> mc.ts = 0
+        >>> mc.ts
+        0
+        >>> mc.start()
+        >>> ts = mc.ts
+        >>> assert ts > 0, \
+        ...    'clock should have been running and thus timestamp should be greater than 0.' \
+        ...    'It was %r.' % ts
 
     Altering time
     -------------
 
-    >>> mc.stop()
-    >>> mc.ts = 20
-    >>> mc.ts += 10
-    >>> mc.ts
-    30
-    >>> mc.start()
-    >>> ts = mc.ts
-    >>> assert ts > 30, \
-    ...    'clock should have been running and thus timestamp should be greater than 30.' \
-    ...    'It was %r.' % ts
+        >>> mc.stop()
+        >>> mc.ts = 20
+        >>> mc.ts += 10
+        >>> mc.ts
+        30
+        >>> mc.start()
+        >>> ts = mc.ts
+        >>> assert ts > 30, \
+        ...    'clock should have been running and thus timestamp should be greater than 30.' \
+        ...    'It was %r.' % ts
 
     Setting time should not stop the clock if it was running:
 
-    >>> mc.ts = 20
-    >>> mc.is_running
-    True
+        >>> mc.ts = 20
+        >>> mc.is_running
+        True
 
 
     Altering with wait
     ------------------
 
-    >>> mc.stop()
-    >>> mc.ts = 0
-    >>> mc.wait(minutes=5)
-    >>> mc.ts
-    300
-    >>> mc.start()
-    >>> mc.wait(minutes=5)
-    >>> ts = mc.ts
-    >>> assert ts > 600, \
-    ...    'clock should have been running and thus timestamp should be greater than 600.' \
-    ...    'It was %r.' % ts
+        >>> mc.stop()
+        >>> mc.ts = 0
+        >>> mc.wait(minutes=5)
+        >>> mc.ts
+        300
+        >>> mc.start()
+        >>> mc.wait(minutes=5)
+        >>> ts = mc.ts
+        >>> assert ts > 600, \
+        ...    'clock should have been running and thus timestamp should be greater than 600.' \
+        ...    'It was %r.' % ts
 
     """
 
@@ -249,9 +249,9 @@ class Time(datetime.datetime):
 
     This is quite straightforward to use:
 
-    >>> from sact.epoch.clock import Time
-    >>> Time.now()
-    <Time ...+00:00>
+        >>> from sact.epoch.clock import Time
+        >>> Time.now()
+        <Time ...+00:00>
 
     Notice that it has a timezone information set.
 
@@ -259,13 +259,13 @@ class Time(datetime.datetime):
     We can give a better view thanks to a manageable clock
     as time reference:
 
-    >>> from sact.epoch.clock import ManageableClock
-    >>> clock = ManageableClock()
+        >>> from sact.epoch.clock import ManageableClock
+        >>> clock = ManageableClock()
 
     We will stop the time to epoch:
 
-    >>> clock.stop()
-    >>> clock.ts = 0
+        >>> clock.stop()
+        >>> clock.ts = 0
 
     Let's set it as reference:
 
@@ -282,11 +282,11 @@ class Time(datetime.datetime):
 
     Here is the result of each function:
 
-    >>> Time.now()
-    <Time 1970-01-01 00:00:00+00:00>
+        >>> Time.now()
+        <Time 1970-01-01 00:00:00+00:00>
 
-    >>> Time.now_lt()
-    <Time 1970-01-01 00:05:00+00:05>
+        >>> Time.now_lt()
+        <Time 1970-01-01 00:05:00+00:05>
 
     Please note that there are 5 minutes of diff to UTC
 
@@ -294,34 +294,38 @@ class Time(datetime.datetime):
     Instanciation
     =============
 
-    >>> Time(1980, 01, 01)
-    <Time 1980-01-01 00:00:00+00:00>
 
     Instanciate a Time from a datetime
+        >>> Time(1980, 01, 01)
+        <Time 1980-01-01 00:00:00+00:00>
 
-    >>> from datetime import datetime
-    >>> d = datetime(1970, 01, 01, tzinfo=TzTest())
-    >>> t = Time(d)
-    >>> t
-    <Time 1970-01-01 00:00:00+00:05>
 
-    >>> Time(t)
-    <Time 1970-01-01 00:00:00+00:05>
+        >>> from datetime import datetime
+        >>> d = datetime(1970, 01, 01, tzinfo=testTimeZone)
+        >>> t = Time(d)
+        >>> t
+        <Time 1970-01-01 00:00:00+00:05>
+
+        >>> Time(t)
+        <Time 1970-01-01 00:00:00+00:05>
 
     Representations
     ^^^^^^^^^^^^^^^
 
-    ISO:
-    >>> t.iso_local
-    '1970-01-01 00:00:00+00:05'
+    There are several standard representation that are available:
+
+        >>> t.iso_local
+        '1970-01-01 00:00:00+00:05'
 
     Short local (remove time zone):
-    >>> t.short_local
-    '1970-01-01 00:00:00'
+
+        >>> t.short_local
+        '1970-01-01 00:00:00'
 
     Short short local (remove seconds):
-    >>> t.short_short_local
-    '1970-01-01 00:00'
+
+        >>> t.short_short_local
+        '1970-01-01 00:00'
 
     """
 
@@ -346,19 +350,19 @@ class Time(datetime.datetime):
         This method provides a handy way to convert datetime objects to Time
         objects:
 
-        >>> import datetime
-        >>> from sact.epoch import UTC
-        >>> dt = datetime.datetime(2000, 1, 1, tzinfo=UTC())
-        >>> Time.from_datetime(dt)
-        <Time 2000-01-01 00:00:00+00:00>
+            >>> import datetime
+            >>> from sact.epoch import UTC
+            >>> dt = datetime.datetime(2000, 1, 1, tzinfo=UTC())
+            >>> Time.from_datetime(dt)
+            <Time 2000-01-01 00:00:00+00:00>
 
         The provided datetime should contain a timezone information or the
         conversion will fail:
 
-        >>> Time.from_datetime(datetime.datetime.now())
-        Traceback (most recent call last):
-        ...
-        ValueError: no timezone set for ...
+            >>> Time.from_datetime(datetime.datetime.now())
+            Traceback (most recent call last):
+            ...
+            ValueError: no timezone set for ...
 
         """
 
@@ -374,15 +378,15 @@ class Time(datetime.datetime):
 
         Add a timedelta:
 
-        >>> Time(2010, 1, 1) + datetime.timedelta(days=1)
-        <Time 2010-01-02 00:00:00+00:00>
+            >>> Time(2010, 1, 1) + datetime.timedelta(days=1)
+            <Time 2010-01-02 00:00:00+00:00>
 
         Add an other Time (send the original exception):
 
-        >>> Time(2010, 1, 1) + Time(1970, 1, 1)
-        Traceback (most recent call last):
-        ...
-        TypeError: unsupported operand type(s) for +: 'Time' and 'Time'
+            >>> Time(2010, 1, 1) + Time(1970, 1, 1)
+            Traceback (most recent call last):
+            ...
+            TypeError: unsupported operand type(s) for +: 'Time' and 'Time'
 
         """
         d = super(Time, self).__add__(delta)
@@ -395,13 +399,13 @@ class Time(datetime.datetime):
 
         Sub a timedelta:
 
-        >>> Time(2010, 1, 1) - datetime.timedelta(days=1)
-        <Time 2009-12-31 00:00:00+00:00>
+            >>> Time(2010, 1, 1) - datetime.timedelta(days=1)
+            <Time 2009-12-31 00:00:00+00:00>
 
         Sub an other Time:
 
-        >>> Time(2010, 1, 2) - Time(2010, 1, 1)
-        datetime.timedelta(1)
+            >>> Time(2010, 1, 2) - Time(2010, 1, 1)
+            datetime.timedelta(1)
 
         """
         d = super(Time, self).__sub__(delta)
@@ -422,8 +426,8 @@ class Time(datetime.datetime):
     def utcfromtimestamp(cls, ts):
         """Return a UTC datetime from a timestamp.
 
-        >>> Time.utcfromtimestamp(0)
-        <Time 1970-01-01 00:00:00+00:00>
+            >>> Time.utcfromtimestamp(0)
+            <Time 1970-01-01 00:00:00+00:00>
 
         """
 
@@ -434,13 +438,13 @@ class Time(datetime.datetime):
     def strptime(cls, value, format, tzinfo):
         """Parse a string to create a Time object.
 
-        >>> from sact.epoch import UTC, TzTest
-        >>> Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
-        <Time 2000-01-01 00:00:00+00:00>
+            >>> from sact.epoch import UTC, TzTest
+            >>> Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
+            <Time 2000-01-01 00:00:00+00:00>
 
-        >>> tz_test = TzTest()
-        >>> Time.strptime('2000-01-01', '%Y-%m-%d', tz_test).tzinfo == tz_test
-        True
+            >>> tz_test = testTimeZone
+            >>> Time.strptime('2000-01-01', '%Y-%m-%d', tz_test).tzinfo == tz_test
+            True
 
         """
 
@@ -453,8 +457,8 @@ class Time(datetime.datetime):
         This overrides the datetime's method to return a Time object instead of
         a datetime object:
 
-        >>> type(Time.now().astimezone(TzTest()))
-        <class 'sact.epoch...Time'>
+            >>> type(Time.now().astimezone(testTimeZone))
+            <class 'sact.epoch...Time'>
 
         """
 
@@ -467,8 +471,8 @@ class Time(datetime.datetime):
 
         See sact.epoch.utils
 
-        >>> Time(1970, 1, 1, 0, 0, 1).timestamp
-        1
+            >>> Time(1970, 1, 1, 0, 0, 1).timestamp
+            1
 
         """
         return datetime_to_timestamp(self)
@@ -477,8 +481,9 @@ class Time(datetime.datetime):
     def iso_local(self):
         """Return the iso format in local time
 
-        >>> Time(1970, 1, 1, 1, 1).iso_local
-        '1970-01-01 01:06:00+00:05'
+            >>> Time(1970, 1, 1, 1, 1).iso_local
+            '1970-01-01 01:06:00+00:05'
+
 
         """
         return self.astimezone(TzLocal()).isoformat(" ")
