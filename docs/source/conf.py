@@ -24,14 +24,14 @@ extensions = ['sphinx.ext.autodoc','sphinx.ext.doctest','sphinx.ext.coverage',]
 templates_path = ['.templates']
 
 # The suffix of source filenames.
-source_suffix = '.txt'
+source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
 
 # General substitutions.
-project = 'NSS'
-copyright = '2010, securactive'
+project = 'sact.epoch'
+copyright = '2011, securactive'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.

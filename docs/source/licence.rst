@@ -5,4 +5,4 @@
 Licence
 =======
 
-SecurActive license
+.. include:: ../../LICENCE

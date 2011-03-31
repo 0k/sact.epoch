@@ -4,16 +4,7 @@
 sact.epoch documentation
 ========================
 
-.. include:: overview.txt
-
-
-What's new
-==========
-
-.. toctree::
-   :maxdepth: 2
-
-   whatsnew
+.. include:: overview.rst
 
 Todo & changelog
 ================
@@ -30,8 +21,8 @@ Meta information
 .. toctree::
    :maxdepth: 2
 
-   copyright
    licence
+
 
 Indices and tables
 ==================

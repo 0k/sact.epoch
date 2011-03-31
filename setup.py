@@ -15,7 +15,7 @@ setup(
     name='sact.epoch',
     version=get_version(version),
     description="",
-    long_description=open("README.rst").read() + open("CHANGELOG.rst").read(),
+    long_description=open("docs/source/overview.rst").read() + open("docs/source/changelog.rst").read(),
     # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Programming Language :: Python",
