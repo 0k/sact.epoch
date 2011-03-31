@@ -478,26 +478,31 @@ class Time(datetime.datetime):
         return datetime_to_timestamp(self)
 
     @property
+    def aslocal(self):
+        return self.astimezone(TzLocal())
+
+    def strftime_local(self, *args, **kwargs):
+        return self.aslocal.strftime(*args, **kwargs)
+
+    @property
     def iso_local(self):
         """Return the iso format in local time
 
             >>> Time(1970, 1, 1, 1, 1).iso_local
             '1970-01-01 01:06:00+00:05'
 
-
         """
-        return self.astimezone(TzLocal()).isoformat(" ")
+        return self.aslocal.isoformat(" ")
 
     @property
     def short_local(self):
         """Idem than iso_local with without time zone"""
-        return self.astimezone(TzLocal()).strftime('%Y-%m-%d %H:%M:%S')
+        return self.strftime_local('%Y-%m-%d %H:%M:%S')
 
     @property
     def short_short_local(self):
         """Idem without seconds"""
-        return self.astimezone(TzLocal()).strftime('%Y-%m-%d %H:%M')
-
+        return self.strftime_local('%Y-%m-%d %H:%M')
 
 
 """
