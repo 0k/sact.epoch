@@ -1,19 +1,8 @@
 from setuptools import setup, find_packages
 
-
-def get_version(version):
-    import datetime
-    if "dev" in version:
-        now = int(datetime.datetime.now().strftime('%Y%m%d%H%M'))
-        return "%s-r%d" % (version, now)
-    else:
-        return version
-
-version = '0.7.0dev'
-
 setup(
     name='sact.epoch',
-    version=get_version(version),
+    version="%%version%%",
     description="",
     long_description=open("docs/source/overview.rst").read() + open("docs/source/changelog.rst").read(),
     # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers

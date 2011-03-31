@@ -36,9 +36,9 @@ copyright = '2011, securactive'
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 # The short X.Y version.
-version = '0.7dev'
+version = '%%short-version%%'
 # The full version, including alpha/beta/rc tags.
-release = '0.7.0dev'
+release = '%%version%%'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
