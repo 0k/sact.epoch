@@ -98,6 +98,9 @@ class TzSystem(datetime.tzinfo):
 
         return time.tzname[is_dst(dt)]
 
+    def __repr__(self):
+        return "<TimeZone: System>"
+
 
 class TzTest(datetime.tzinfo):
     """Timezone crafted for tests"""
@@ -112,6 +115,9 @@ class TzTest(datetime.tzinfo):
 
     def dst(self, dt):
         return ZERO
+
+    def __repr__(self):
+        return "<TimeZone: Test>"
 
 
 testTimeZone = TzTest()
