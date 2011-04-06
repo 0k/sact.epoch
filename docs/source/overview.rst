@@ -189,6 +189,21 @@ We are ready to test the function::
   >>> is_it_ok()
   False
 
+Please note that ``ManageableClock`` have a ``wait`` method::
+
+  >>> clock.wait(minutes=1)
+  >>> sact.epoch.Time.now().timestamp
+  61
+  >>> is_it_ok()
+  False
+
+Of course, the execution of ``clock.wait`` is immediate. You can use a
+``datetime.timedelta`` as argument of wait or any keyword args you would send
+to ``datetime.timedelta`` constructor (this includes ``days``, ``seconds``,
+``microseconds``, ``milliseconds``, ``minutes``, ``hours``, ``weeks`` as of
+python version 2.7.1, cf:
+http://docs.python.org/library/datetime.html#datetime.timedelta)
+
 
 Diverting timezone of system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
