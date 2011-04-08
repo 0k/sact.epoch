@@ -80,7 +80,7 @@ http://bugs.python.org/issue1457227)
 This is a common question. (cf:
 http://stackoverflow.com/questions/5067218/get-utc-timestamp-in-python-with-datetime/5499906#5499906)
 
-``datetime.datetime`` objects can be naïve, which means unaware of the
+``datetime.datetime`` objects can be naive, which means unaware of the
 timezone. Thus, it is impossible to get UTC timestamp from this form of
 datetime unless you guess the timezone yourself.
 
