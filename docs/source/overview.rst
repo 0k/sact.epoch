@@ -66,12 +66,12 @@ Additionaly, using ``sact.epoch.Time`` ensures that:
 Get timestamp from a datetime
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's say you have some code that is dependent of ``datetime.datetime.now()``::
+Let's say you have some code using ``datetime.datetime.now()``::
 
   >>> import datetime
   >>> now = datetime.datetime.now()
 
-First issue: this variable is meant to represent a time stored as UTC in a
+First issue: if this variable is meant to represent a time stored as UTC in a
 database.
 
 How do you get UTC timestamp from datetime ? (cf:
@@ -80,9 +80,9 @@ http://bugs.python.org/issue1457227)
 This is a common question. (cf:
 http://stackoverflow.com/questions/5067218/get-utc-timestamp-in-python-with-datetime/5499906#5499906)
 
-``datetime.datetime`` objects can be naive, which means unaware of the
-timezone. Thus, it is impossible to get UTC timestamp from this form of
-datetime unless you guess the timezone yourself.
+The answer is ``datetime.datetime`` objects can be naive, which means unaware
+of the timezone. Thus, it is impossible to get UTC timestamp from this form of
+datetime unless you can guess the timezone yourself.
 
 Hopefully, the timezone of your system didn't change between the datetime
 object creation and the moment you want to get a timestamp, if this is the case
@@ -96,24 +96,28 @@ between EPOCH in the current timezone and the provided datetime. This is why
 you must ensure that datetime object was created when the same TimeZone on the
 system than when you run this function.
 
+No doctest is given to your eyes on the content of the variable
+``utc_timestamp`` because the output depends on the current time. And this
+can be often an issue you'll encounter: having complex code that depends on
+the current date, how do you test it ? This is the purpose of sact.epoch.Time.
+
 
 Forcing to use only aware datetime
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Quite quickly, you'll ask yourself: but what use have I of naive datetime
-objects ?
+Quite quickly, you'll ask yourself: but what use have I of naive
+``datetime.datetime`` objects if they can't be used in lots of cases ?
 
-The answer is: there are no use of it.
+The answer is: there are no use of naive ``datetime.datetime``.
 
-Aware datetime objects are more precise and:
+Aware datetime objects as ``sact.epoch.Time`` contains all additional
+information allowing to:
 
-- you don't have to keep track of the timezones you had when creating datetime
-  object
+- get an UTC timestamp
+- compare two ``Time`` object whatever there timezone is.
 
-- thus any aware datetime object are comparable
-
-Using naive datetime might even be concidered harmfull. sact.epoch.Time will
-ensure that all your objects are aware. By default, TimeZone won't even be
+Using naive datetime might even be concidered harmfull. ``sact.epoch.Time``
+will ensure that all your objects are aware. By default, TimeZone won't even be
 dependent of your system local time, but will be stored in UTC timezone.
 
 datetime objects::
