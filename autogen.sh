@@ -81,7 +81,7 @@ function die() {
 ## Code
 ##
 
-depends git git-changelog sed
+depends git git-changelog sed grep
 
 
 if ! test -e "setup.py" >/dev/null 2>&1; then
@@ -130,11 +130,16 @@ function get_current_version() {
 function set_version_setup_py() {
 
     version=$(get_current_version)
-    short_version=$(echo "$version" | cut -f 1,2 -d ".")
+    short_version=$(echo "$version" | cut -f 1,2,3 -d ".")
 
-    sed -ri "s/%%version%%/$version/g" setup.py docs/source/conf.py docs/source/changelog.rst
-    sed -ri "s/%%short-version%%/${short_version}/g" setup.py docs/source/conf.py docs/source/changelog.rst
-     
+    sed -ri "s/%%version%%/$version/g" setup.py \
+                                       docs/source/conf.py \
+                                       docs/source/changelog.rst &&
+    sed -ri "s/%%short-version%%/${short_version}/g" \
+                                       setup.py \
+                                       docs/source/conf.py \
+                                       docs/source/changelog.rst &&
+    echo "Version updated to $version."
 }
 
 "$git_changelog" > docs/source/changelog.rst
@@ -148,5 +153,4 @@ set_version_setup_py
 if [ "$?" != 0 ]; then
     print_error "Error while updating version information."
 fi
-echo "Version updated"
 
