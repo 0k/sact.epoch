@@ -22,6 +22,7 @@ def is_dst(dt):
           dt.hour, dt.minute, dt.second,
           dt.weekday(), 0, -1)
     stamp = time.mktime(tt)
+
     tt = time.localtime(stamp)
     return tt.tm_isdst > 0
 

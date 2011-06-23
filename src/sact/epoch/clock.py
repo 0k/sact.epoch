@@ -254,6 +254,25 @@ class Time(datetime.datetime):
       Same mecanism is used to get the local time zone, allowing to override
     the detection of the local time zone when using Time.now_lt().
 
+    Limitations
+    ===========
+
+      Underlying Datetime object have some methods that can fail after
+    initialisation as Datetime.strftime(). Time object make an extensive
+    use of some of them and thus will perform a validity check of these
+    methods at initialisation time. This will limit the possible range
+    of times that is supported currently by the Time object.
+
+      The earlier date possible depends of your architecture. You can set the
+    'disable_validity_check' optional argument to 'True' at init time to bypass
+    the checkings but notice that some localized methods are then not garanteed
+    to work and have reportedly failed on dates earlier than year 1900::
+
+      >>> Time(1, 1, 1)
+      Traceback (most recent call last):
+      ...
+      ValueError: Encountered datetime method limitation: ...
+
     Usage
     =====
 
@@ -352,7 +371,20 @@ class Time(datetime.datetime):
         if 'tzinfo' not in kwargs and len(args) < 8:
             # XXXjballet: to test
             kwargs['tzinfo'] = UTC()
-        return super(Time, cls).__new__(cls, *args, **kwargs)
+
+        check = not kwargs.pop('disable_validity_check', False)
+
+        dt = super(Time, cls).__new__(cls, *args, **kwargs)
+
+        if check:
+            ## Check that the architecture can call localized methods
+            try:
+                dt.strftime('%Y')
+            except ValueError, e:
+                raise ValueError("Encountered datetime method limitation:"
+                                 " %s" % str(e))
+
+        return dt
 
     def __repr__(self):
         return "<Time %s>" % self
