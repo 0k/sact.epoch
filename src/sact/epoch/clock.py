@@ -13,7 +13,8 @@ from zope.component import queryUtility
 
 from .interfaces import ITime, IClock
 from .timezone import UTC, TzLocal
-from sact.epoch.utils import datetime_to_timestamp
+from .strptime import strptime
+from .utils import datetime_to_timestamp
 
 
 def round_date(date):
@@ -481,8 +482,11 @@ class Time(datetime.datetime):
         return dt.replace(tzinfo=UTC())
 
     @classmethod
-    def strptime(cls, value, format, tzinfo):
+    def strptime(cls, value, format, tzinfo, relative=False):
         """Parse a string to create a Time object.
+
+        Usage
+        =====
 
             >>> from sact.epoch import UTC, TzTest
             >>> Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
@@ -492,10 +496,38 @@ class Time(datetime.datetime):
             >>> Time.strptime('2000-01-01', '%Y-%m-%d', tz_test).tzinfo == tz_test
             True
 
-        """
+        There's a ``relative`` option which when True, will fill
+        non given time with the current local time (with current
+        local time zone)::
 
-        dt = super(Time, cls).strptime(value, format)
-        return dt.replace(tzinfo=tzinfo)
+            >>> t1 = Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
+            >>> clock.ts = t1.timestamp
+
+        We've just jumped in time and are now at ``t1``. So if we now ask for
+        ``strptime()`` in relative mode with only hours and minutes given::
+
+            >>> Time.strptime('15:08', '%H:%M', UTC(), relative=True)
+            <Time 2000-01-01 15:03:00+00:00>
+            >>> Time.strptime('15:08', '%H:%M', tz_test, relative=True)
+            <Time 2000-01-01 15:08:00+00:05>
+
+        You can notice how that is different from default behavior::
+
+            >>> Time.strptime('15:08', '%H:%M', UTC(), relative=False)
+            <Time 1900-01-01 15:08:00+00:00>
+
+        """
+        if relative == False:
+            dt = super(Time, cls).strptime(value, format)
+            return dt.replace(tzinfo=tzinfo)
+
+        now = Time.now_lt()
+        input_time = now.timetuple(), now.microsecond
+        time_struct, microseconds = strptime(value, format,
+                                             reference=input_time)
+        dt = Time.fromtimestamp(time.mktime(time_struct))
+        dt = dt.replace(microsecond=microseconds, tzinfo=TzLocal())
+        return dt.astimezone(tzinfo)
 
     def astimezone(self, tz):
         """Convert Time object to another timezone and return a Time object
