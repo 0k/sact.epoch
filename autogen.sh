@@ -81,7 +81,7 @@ function die() {
 ## Code
 ##
 
-depends git git-changelog sed grep
+depends git gitchangelog sed grep
 
 
 if ! test -e "setup.py" >/dev/null 2>&1; then
@@ -142,7 +142,7 @@ function set_version_setup_py() {
     echo "Version updated to $version."
 }
 
-"$git_changelog" > docs/source/changelog.rst
+"$gitchangelog" > docs/source/changelog.rst
 if [ "$?" != 0 ]; then
     print_error "Error while generating changelog."
 fi
