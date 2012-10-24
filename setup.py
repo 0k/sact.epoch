@@ -33,6 +33,7 @@ setup(
     ],
     extras_require={'test': [
         'zope.testing',
+        'zope.testrunner',
         # -*- Extra requirements: -*-
         'z3c.testsetup',
     ],
