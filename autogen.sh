@@ -154,3 +154,6 @@ if [ "$?" != 0 ]; then
     print_error "Error while updating version information."
 fi
 
+
+echo "Getting bootstrap.py"
+rm -f bootstrap.py && wget http://python-distribute.org/bootstrap.py
