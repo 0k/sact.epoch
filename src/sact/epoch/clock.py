@@ -4,9 +4,9 @@
 
 """
 
-
 import datetime
 import time
+import warnings
 
 from zope.interface import classProvides, implements
 from zope.component import queryUtility
@@ -15,6 +15,25 @@ from .interfaces import ITime, IClock
 from .timezone import UTC, TzLocal
 from .strptime import strptime
 from .utils import datetime_to_timestamp
+
+
+def deprecation(message):
+    warnings.warn(message, DeprecationWarning, stacklevel=2)
+
+
+def deprecate(in_favor=None):
+
+    def decorator(f):
+
+        def wrapped(*args, **kwargs):
+            if in_favor:
+                deprecation("Call to %r is deprecated, use %r instead."
+                            % (f.__name__, in_favor))
+            else:
+                deprecation("Call to %r is deprecated." % (f.__name__, ))
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
 
 
 def round_date(date):
@@ -348,6 +367,24 @@ class Time(datetime.datetime):
 
     There are several standard representation that are available:
 
+        >>> t.iso
+        '1970-01-01 00:00:00+00:05'
+
+    Short local (remove time zone):
+
+        >>> t.short
+        '1970-01-01 00:00:00'
+
+    Short short local (remove seconds):
+
+        >>> t.short_short
+        '1970-01-01 00:00'
+
+
+    These are DEPRECATED usage::
+
+        >>> import warnings
+        >>> warnings.simplefilter('always')
         >>> t.iso_local
         '1970-01-01 00:00:00+00:05'
 
@@ -360,6 +397,27 @@ class Time(datetime.datetime):
 
         >>> t.short_short_local
         '1970-01-01 00:00'
+
+
+    Timezone changing
+    ^^^^^^^^^^^^^^^^^
+
+    You can change the timezone (without changing the actual stored
+    time) of a Time instance by using ``astimezone()`` which stems
+    out underlying datetime API. We provide here 2 handy shortcuts:
+
+        >>> Time(1980, 01, 01).local
+        <Time 1980-01-01 00:05:00+00:05>
+        >>> Time(1980, 01, 01).utc
+        <Time 1980-01-01 00:00:00+00:00>
+
+    These are DEPRECATED usage::
+
+        >>> Time(1980, 01, 01).aslocal
+        <Time 1980-01-01 00:05:00+00:05>
+        >>> Time(1980, 01, 01).asutc
+        <Time 1980-01-01 00:00:00+00:00>
+
 
     """
 
@@ -467,7 +525,7 @@ class Time(datetime.datetime):
 
     @staticmethod
     def now_lt():
-        return Time.now().astimezone(TzLocal())
+        return Time.now().local
 
     @classmethod
     def utcfromtimestamp(cls, ts):
@@ -556,31 +614,89 @@ class Time(datetime.datetime):
         return datetime_to_timestamp(self)
 
     @property
-    def aslocal(self):
-        return self.astimezone(TzLocal())
+    def utc(self):
+        """Returns the UTC version of the same time.
 
-    def strftime_local(self, *args, **kwargs):
-        return self.aslocal.strftime(*args, **kwargs)
-
-    @property
-    def iso_local(self):
-        """Return the iso format in local time
-
-            >>> Time(1970, 1, 1, 1, 1).iso_local
-            '1970-01-01 01:06:00+00:05'
+        This doesn't change the actual time being stored, but only it's
+        timezone.
 
         """
-        return self.aslocal.isoformat(" ")
+        return self.astimezone(UTC())
 
     @property
+    def local(self):
+        return self.astimezone(TzLocal())
+
+    @property
+    def iso(self):
+        """Return the iso format in local time
+
+            >>> Time(1970, 1, 1, 1, 1).iso
+            '1970-01-01 01:01:00+00:00'
+
+        """
+        return self.isoformat(" ")
+
+    @property
+    def short(self):
+        """Return as iso with without time zone
+
+        Warning, this looses the time zone information and thus could
+        be dangerous. Make sure that if you store this, the time zone is
+        clearly inferable from its environment.
+
+            >>> Time(1970, 1, 1, 1, 1).short
+            '1970-01-01 01:01:00'
+
+        """
+        return self.strftime('%Y-%m-%d %H:%M:%S')
+
+    @property
+    def short_short(self):
+        """Idem without seconds
+
+        Warning, this looses the time zone information and thus could
+        be dangerous. Make sure that if you store this, the time zone is
+        clearly inferable from its environment.
+
+            >>> Time(1970, 1, 1, 1, 1).short_short
+            '1970-01-01 01:01'
+
+        """
+        return self.strftime('%Y-%m-%d %H:%M')
+
+    ##
+    ## DEPRECATED
+    ##
+
+    @property
+    @deprecate(in_favor='local')
+    def aslocal(self):
+        return self.local
+
+    @property
+    @deprecate(in_favor='utc')
+    def asutc(self):
+        return self.utc
+
+    @deprecate(in_favor='.local.strftime')
+    def strftime_local(self, *args, **kwargs):
+        return self.local.strftime(*args, **kwargs)
+
+    @property
+    @deprecate(in_favor='.local.iso')
+    def iso_local(self):
+        return self.local.isoformat(" ")
+
+    @property
+    @deprecate(in_favor='.local.short')
     def short_local(self):
-        """Idem than iso_local with without time zone"""
-        return self.strftime_local('%Y-%m-%d %H:%M:%S')
+        return self.local.strftime('%Y-%m-%d %H:%M:%S')
 
     @property
+    @deprecate(in_favor='.local.short_short')
     def short_short_local(self):
-        """Idem without seconds"""
-        return self.strftime_local('%Y-%m-%d %H:%M')
+        return self.local.strftime('%Y-%m-%d %H:%M')
 
 
 """
