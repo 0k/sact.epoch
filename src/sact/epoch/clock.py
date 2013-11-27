@@ -274,6 +274,7 @@ class Time(datetime.datetime):
       Same mecanism is used to get the local time zone, allowing to override
     the detection of the local time zone when using Time.now_lt().
 
+
     Limitations
     ===========
 
@@ -292,6 +293,7 @@ class Time(datetime.datetime):
       Traceback (most recent call last):
       ...
       ValueError: Encountered datetime method limitation: ...
+
 
     Usage
     =====
@@ -319,16 +321,16 @@ class Time(datetime.datetime):
 
     Let's set it as reference:
 
-    >>> from zope.component import globalSiteManager as gsm
-    >>> gsm.registerUtility(clock)
+        >>> from zope.component import globalSiteManager as gsm
+        >>> gsm.registerUtility(clock)
 
     Now, let's set our TzTest as local timezone, remember it has 5 minutes
     difference to UTC:
 
-    >>> from sact.epoch import testTimeZone
-    >>> from sact.epoch.interfaces import ITimeZone
+        >>> from sact.epoch import testTimeZone
+        >>> from sact.epoch.interfaces import ITimeZone
 
-    >>> gsm.registerUtility(testTimeZone, ITimeZone, name='local')
+        >>> gsm.registerUtility(testTimeZone, ITimeZone, name='local')
 
     Here is the result of each function:
 
@@ -361,6 +363,7 @@ class Time(datetime.datetime):
 
         >>> Time(t)
         <Time 1970-01-01 00:00:00+00:05>
+
 
     Representations
     ^^^^^^^^^^^^^^^
