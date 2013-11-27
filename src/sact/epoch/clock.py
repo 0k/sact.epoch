@@ -540,23 +540,59 @@ class Time(datetime.datetime):
         return dt.replace(tzinfo=UTC())
 
     @classmethod
-    def strptime(cls, value, format, tzinfo, relative=False):
+    def fromtimestamp(cls, ts, tz=None):
+        """Return a UTC datetime from a timestamp.
+
+            >>> Time.fromtimestamp(0, tz=testTimeZone)
+            <Time 1970-01-01 00:05:00+00:05>
+
+        """
+        t = cls.utcfromtimestamp(ts)
+        if tz is not None:
+            t = t.astimezone(tz)
+        return t
+
+    @classmethod
+    def strptime(cls, value, format, src_tz, relative=False):
         """Parse a string to create a Time object.
+
+        src_tz is the source time zone in which the value
+        should be interpreted.
+
+        The result Time instance will be in UTC (but you can move it
+        with astimezone, or the shortcut '.local').
 
         Usage
         =====
 
+        source timezone
+        ^^^^^^^^^^^^^^^
+
             >>> from sact.epoch import UTC, TzTest
-            >>> Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
+            >>> Time.strptime('2000-01-01', '%Y-%m-%d', src_tz=UTC())
             <Time 2000-01-01 00:00:00+00:00>
 
-            >>> tz_test = testTimeZone
-            >>> Time.strptime('2000-01-01', '%Y-%m-%d', tz_test).tzinfo == tz_test
-            True
+        If source is UTC, then it's the same as the output. No surprise here.
 
-        There's a ``relative`` option which when True, will fill
-        non given time with the current local time (with current
-        local time zone)::
+            >>> ttz = testTimeZone
+            >>> t0 = Time.strptime('2000-01-01', '%Y-%m-%d',
+            ...                    src_tz=ttz)
+            >>> t0
+            <Time 1999-12-31 23:55:00+00:00>
+
+        If source is in testTimeZone time, then UTC is 5 minutes
+        before. The output is by default in UTC. So it's prettier if
+        we look at this time in it's original timezone::
+
+            >>> t0.astimezone(ttz)
+            <Time 2000-01-01 00:00:00+00:05>
+
+        relative
+        ^^^^^^^^
+
+        There's a ``relative`` option which if non-False, will fill
+        non given time with the given time instance as reference (or now in
+        local time zone if the relative value is set to True)::
 
             >>> t1 = Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
             >>> clock.ts = t1.timestamp
@@ -565,27 +601,37 @@ class Time(datetime.datetime):
         ``strptime()`` in relative mode with only hours and minutes given::
 
             >>> Time.strptime('15:08', '%H:%M', UTC(), relative=True)
+            <Time 2000-01-01 15:08:00+00:00>
+            >>> Time.strptime('15:08', '%H:%M', ttz, relative=True)
             <Time 2000-01-01 15:03:00+00:00>
-            >>> Time.strptime('15:08', '%H:%M', tz_test, relative=True)
-            <Time 2000-01-01 15:08:00+00:05>
 
-        You can notice how that is different from default behavior::
+        We could have also set the reference time directly as a value in the
+        ``relative`` argument::
+
+            >>> t2 = Time.strptime('1990-05-05', '%Y-%m-%d', UTC())
+            >>> Time.strptime('15:08', '%H:%M', ttz, relative=t2)
+            <Time 1990-05-05 15:03:00+00:00>
+
+        You can notice how that is different from default behavior, which
+        takes EPOCH as reference::
 
             >>> Time.strptime('15:08', '%H:%M', UTC(), relative=False)
             <Time 1900-01-01 15:08:00+00:00>
 
         """
-        if relative == False:
+        if relative is False:
             dt = super(Time, cls).strptime(value, format)
-            return dt.replace(tzinfo=tzinfo)
+            dt = dt.replace(tzinfo=src_tz)
+            return dt.utc
 
-        now = Time.now_lt()
-        input_time = now.timetuple(), now.microsecond
+        reference = Time.now() if relative is True else relative
+
+        input_time = reference.timetuple(), reference.microsecond
         time_struct, microseconds = strptime(value, format,
                                              reference=input_time)
-        dt = Time.fromtimestamp(time.mktime(time_struct))
-        dt = dt.replace(microsecond=microseconds, tzinfo=TzLocal())
-        return dt.astimezone(tzinfo)
+        dt = Time(*time_struct[:6])
+        dt = dt.replace(microsecond=microseconds, tzinfo=src_tz)
+        return dt.utc
 
     def astimezone(self, tz):
         """Convert Time object to another timezone and return a Time object
