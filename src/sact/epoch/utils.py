@@ -16,13 +16,14 @@ from .timezone import UTC
 def datetime_to_timestamp(dt):
     """Converts a datetime object to UTC timestamp
 
-    This function uses utc_mktime (see doc).
+    This function uses utc_mktime (see doc). A naive datetime will be
+    considered as being in UTC.
 
     Usage
     =====
 
     >>> from sact.epoch import datetime_to_timestamp
-    >>> from sact.epoch import utc_mktime
+    >>> from sact.epoch import utc_mktime, TzLocal, UTC
     >>> import datetime
 
     >>> epoch = datetime.datetime(1970,1,1)
@@ -35,7 +36,18 @@ def datetime_to_timestamp(dt):
     >>> datetime_to_timestamp(epoch + anhour)
     3600
 
+    This works also with non-naive datetime, and will output
+    the right time.
+
+    >>> t = epoch.replace(tzinfo=UTC())
+    >>> datetime_to_timestamp(t)
+    0
+    >>> datetime_to_timestamp(t.astimezone(TzLocal()))
+    0
+
     """
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(UTC())
     return int(utc_mktime(dt.timetuple()))
 
 
