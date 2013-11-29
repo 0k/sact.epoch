@@ -1,0 +1,12 @@
+language: python
+python:
+  - "2.7"
+  - "2.6"
+install:
+  - ./autogen.sh
+  - python bootstrap.py
+  - bin/buildout
+  - python setup.py install ## required for python -m doctest
+script:
+  - python -m doctest -d README.rst
+  - bin/test -vp1

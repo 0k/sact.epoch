@@ -1,5 +1,15 @@
+==========
+sact.epoch
+==========
 
-sact.epoch is a Python library using Zope Component Architecture providing 
+.. image:: https://pypip.in/v/sact.epoch/badge.png
+    :target: https://pypi.python.org/pypi/epoch
+
+.. image:: https://secure.travis-ci.org/0k/sact.epoch.png?branch=master
+    :target: http://travis-ci.org/0k/sact.epoch
+
+
+``sact.epoch`` is a Python library using Zope Component Architecture providing 
 legacy ``datetime.datetime`` subclass that allows a simple time abstraction
 mecanism, allowing code that would use it as reference to be diverted both 
 on the local time zone and the real time.
