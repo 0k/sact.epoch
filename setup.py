@@ -27,6 +27,7 @@ setup(
     install_requires=[
         'setuptools',
         # -*- Extra requirements: -*-
+        'python-dateutil',
         'zope.interface',
         'zope.component',
         'pytz',

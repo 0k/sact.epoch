@@ -7,6 +7,7 @@
 import datetime
 import time
 import warnings
+import dateutil.parser
 
 from zope.interface import classProvides, implements
 from zope.component import queryUtility
@@ -384,6 +385,39 @@ class Time(datetime.datetime):
         >>> Time(t)
         <Time 1970-01-01 00:00:00+00:05>
 
+    Or even a direct string:
+
+        >>> Time('1970-01-01 00:00:00+00:05')
+        <Time 1970-01-01 00:00:00+00:05>
+
+        >>> Time(u'2000-01-01 00:00:00+01:00')
+        <Time 2000-01-01 00:00:00+01:00>
+
+    However, if you don't provide the timezone in the string representation
+    or in the datetime (which is then called naive-datetimes):
+
+        >>> Time(datetime(1970, 01, 01))
+        Traceback (most recent call last):
+        ...
+        ValueError: No timezone hinted, nor found.
+
+        >>> Time('1970-01-01 00:00:00')
+        Traceback (most recent call last):
+        ...
+        ValueError: No timezone hinted, nor found.
+
+    Hopefully, you can provide an hint to what is the intended timezone:
+
+        >>> from sact.epoch import UTC
+        >>> Time(datetime(1970, 01, 01), hint_src_tz=UTC())
+        <Time 1970-01-01 00:00:00+00:00>
+        >>> Time('2000-01-01 00:00:00', hint_src_tz=UTC())
+        <Time 2000-01-01 00:00:00+00:00>
+
+    Additionaly, partial date string parsing is available:
+
+        >>> Time('15:30', hint_src_tz=UTC())
+        <Time 1970-01-01 15:30:00+00:00>
 
     Representations
     ^^^^^^^^^^^^^^^
@@ -448,7 +482,30 @@ class Time(datetime.datetime):
 
     def __new__(cls, *args, **kwargs):
         if len(args) and isinstance(args[0], datetime.datetime):
-            return Time.from_datetime(args[0])
+            return Time.from_datetime(args[0], **kwargs)
+
+        if len(args) and isinstance(args[0], basestring):
+            if len(args) > 1:
+                raise SyntaxError(
+                    "Too much positional arguments when using Time "
+                    "instanciation by string.")
+            if "hint_src_tz" in kwargs:
+                try:
+                    return Time.from_string(args[0], **kwargs)
+                except ValueError:
+                    pass
+
+            if "relative" in kwargs:
+                default = kwargs["relative"]
+                del kwargs["relative"]
+            else:
+                ## XXXvlab: hum, we have to craft a Time without timezone
+                ## to force error if no explicit timezone is given to the
+                ## Time instanciation
+                default = Time.now().replace(tzinfo=kwargs.get("hint_src_tz"))
+
+            return Time(dateutil.parser.parse(args[0], default=default),
+                        **kwargs)
 
         if 'tzinfo' not in kwargs and len(args) < 8:
             # XXXjballet: to test
