@@ -774,6 +774,13 @@ class Time(datetime.datetime):
         """
         return self.strftime('%Y-%m-%d %H:%M')
 
+    @property
+    def tt(self):
+        """Returns the timetuple of current Time instance"""
+        return self.timetuple()
+
+    ts = timestamp
+
     ##
     ## DEPRECATED
     ##
