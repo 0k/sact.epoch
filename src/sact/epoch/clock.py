@@ -17,6 +17,26 @@ from .strptime import strptime
 from .utils import dt2ts
 
 
+DEFAULT_PARSER_FORMATS = [
+    "%Y-%m-%d",
+    "%Y-%m-%d %H:%M",
+    "%Y-%m-%d %H:%M:%S",
+    "%m-%d",
+    "%m/%d",
+    "%m-%d %H:%M:%S",
+    "%m-%d %H:%M",
+    "%d %H:%M",
+    "%d %Hh%M",
+    "%d %Hh",
+    "%H:%M:%S",
+    "%H:%M",
+    "%Hh%M",
+    "%Hh",
+    "%Mm",
+    "%M",
+    ]
+
+
 def deprecation(message):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
 
@@ -556,10 +576,39 @@ class Time(datetime.datetime):
         return t
 
     @classmethod
-    def strptime(cls, value, format, src_tz, relative=False):
+    def from_string(cls, date_str, hint_src_tz,
+                    relative=True, formats=None):
+        """Return a UTC datetime from a possibily partial string representation
+
+        By default, output is relative to localtime:
+
+            >>> Time.from_string('15h30', hint_src_tz=UTC())
+            <Time 1970-01-01 15:30:00+00:00>
+
+        But it can be specified of course:
+
+            >>> t = Time.from_string('2000-01-01 00:00:00', hint_src_tz=UTC())
+            >>> Time.from_string('15h30', hint_src_tz=UTC(),
+            ...     relative=t)
+            <Time 2000-01-01 15:30:00+00:00>
+
+        """
+        formats = formats or DEFAULT_PARSER_FORMATS
+        for f in formats:
+            try:
+                return cls.strptime(
+                    date_str, f, hint_src_tz=hint_src_tz,
+                    relative=relative)
+            except ValueError:
+                pass
+        raise ValueError("No format seems to know how to parse your string %r"
+                         % (date_str, ))
+
+    @classmethod
+    def strptime(cls, value, format, hint_src_tz, relative=False):
         """Parse a string to create a Time object.
 
-        src_tz is the source time zone in which the value
+        hint_src_tz is the source time zone in which the value
         should be interpreted.
 
         The result Time instance will be in UTC (but you can move it
@@ -572,14 +621,14 @@ class Time(datetime.datetime):
         ^^^^^^^^^^^^^^^
 
             >>> from sact.epoch import UTC, TzTest
-            >>> Time.strptime('2000-01-01', '%Y-%m-%d', src_tz=UTC())
+            >>> Time.strptime('2000-01-01', '%Y-%m-%d', hint_src_tz=UTC())
             <Time 2000-01-01 00:00:00+00:00>
 
         If source is UTC, then it's the same as the output. No surprise here.
 
             >>> ttz = testTimeZone
             >>> t0 = Time.strptime('2000-01-01', '%Y-%m-%d',
-            ...                    src_tz=ttz)
+            ...                    hint_src_tz=ttz)
             >>> t0
             <Time 1999-12-31 23:55:00+00:00>
 
@@ -616,7 +665,7 @@ class Time(datetime.datetime):
             <Time 1990-05-05 15:03:00+00:00>
 
         You can notice how that is different from default behavior, which
-        takes EPOCH as reference::
+        takes EPOCH as relative::
 
             >>> Time.strptime('15:08', '%H:%M', UTC(), relative=False)
             <Time 1900-01-01 15:08:00+00:00>
@@ -624,16 +673,16 @@ class Time(datetime.datetime):
         """
         if relative is False:
             dt = super(Time, cls).strptime(value, format)
-            dt = dt.replace(tzinfo=src_tz)
+            dt = dt.replace(tzinfo=hint_src_tz)
             return dt.utc
 
-        reference = Time.now() if relative is True else relative
+        relative = Time.now() if relative is True else relative
 
-        input_time = reference.timetuple(), reference.microsecond
+        input_time = relative.timetuple(), relative.microsecond
         time_struct, microseconds = strptime(value, format,
                                              reference=input_time)
         dt = Time(*time_struct[:6])
-        dt = dt.replace(microsecond=microseconds, tzinfo=src_tz)
+        dt = dt.replace(microsecond=microseconds, tzinfo=hint_src_tz)
         return dt.utc
 
     def astimezone(self, tz):
