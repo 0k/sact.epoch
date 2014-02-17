@@ -188,16 +188,6 @@ def utc_mktime(utc_tuple):
     return time.mktime(utc_tuple) - time.mktime((1970, 1, 1, 0, 0, 0, 0, 0, 0))
 
 
-def min_interval(nbseconds, timestamp):
-    """Get greatest grid boundary smaller than timestamp on a timegrid of nbseconds width"""
-    return timestamp - (timestamp % nbseconds)
-
-
-def max_interval(nbseconds, timestamp):
-    """Get smallest grid boundary greater than timestamp on a timegrid of nbseconds width"""
-    return timestamp - (timestamp % nbseconds) + nbseconds
-
-
 
 def lt_strptime_to_utc_ts(str, format, tzinfo=None):
     """Returns an UTC timestamp from user defined format localtime strptime
