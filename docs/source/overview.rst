@@ -17,8 +17,8 @@ object to always provide a timezone.
 - if your application manage 2+ different timezones (ie: UTC and local
   timezone), and you are tired of legacy "naive" datetime object on this matter.
 
-- if you want to be able to divert local Time, or TimeZone of your application
-  for test purpose.
+- if you want to be able to divert system calls to local time, or
+  local time zone of your application for test purpose.
 
 
 Contents
@@ -62,6 +62,7 @@ Additionaly, using ``sact.epoch.Time`` ensures that:
 - ``.now()`` method will use the Zope Component Architecture registry to get
   a common Utility that is in charge of giving the real time. This allows
   simple overriding mecanism.
+
 
 Get timestamp from a datetime
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,9 +117,10 @@ information allowing to:
 - get an UTC timestamp
 - compare two ``Time`` object whatever there timezone is.
 
-Using naive datetime might even be concidered harmfull. ``sact.epoch.Time``
-will ensure that all your objects are aware. By default, TimeZone won't even be
-dependent of your system local time, but will be stored in UTC timezone.
+Using naive datetime might even be concidered
+harmfull. ``sact.epoch.Time`` will ensure that all your objects are
+timezone aware. By default, TimeZone won't even be dependent of your
+system local time, but will be stored in UTC timezone.
 
 datetime objects::
 
@@ -145,9 +147,9 @@ available::
 Diverting time
 ~~~~~~~~~~~~~~
 
-If you use sact.epoch.Time.now() in place of datetime.datetime.now(), your code
-will have seams to divert real time reference without touching the system
-clock.
+If you use ``sact.epoch.Time.now()`` in place of
+``datetime.datetime.now()``, your code will have seams to divert real
+time reference without touching the system clock.
 
 Say your code is::
 
@@ -160,9 +162,9 @@ Say your code is::
 now and epoch is odd.
 
 This is the type of function which is quite difficult to test if you are using
-datetime.datetime.now(). Whole application will make extensive usage of the
+``datetime.datetime.now()``. Whole application will make extensive usage of the
 system clock, and will eventually be difficult to test unless you used
-sact.epoch.Time.now() in place of datetime.
+``sact.epoch.Time.now()`` in place of datetime.
 
 Here's the test of the function::
 

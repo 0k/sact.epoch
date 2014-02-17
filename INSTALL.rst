@@ -9,7 +9,7 @@ Source code from versioning system
 
 Prior to any extensive usage of "python setup.py" commands, you should run::
 
-   $ ./autogen.sh
+    $ ./autogen.sh
 
 To prepare the source code for build system.
 
@@ -23,5 +23,5 @@ You can directly skip to Part 2.
 
 To install this code in your system, you can simply run::
 
- $ python setup.py install
+   $ python setup.py install
 
