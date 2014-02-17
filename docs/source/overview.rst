@@ -218,11 +218,14 @@ When displaying times to the user, it is appreciated to show the time in local
 timezone::
 
   >>> def what_time_is_it():
-  ...     print sact.epoch.Time.now().iso_local
+  ...     print sact.epoch.Time.now().local.iso
 
-Notice the shortcut ``iso_local`` property which will be of some help.
+Notice the use of the property ``local`` which returns a new ``Time``
+instance set to the same moment in time but in the system local
+timezone, and the ``iso`` property which returns the iso string 
+representation of the ``Time`` object.
 
-This property uses ``sact.epoch.TzLocal()`` which is responsible of giving
+The ``local`` property uses ``sact.epoch.TzLocal()`` which is responsible of giving
 the system local timezone:
 
   >>> sact.epoch.TzLocal()
