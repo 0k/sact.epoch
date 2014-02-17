@@ -2,6 +2,8 @@
 sact.epoch
 ==========
 
+.. :doctest:
+
 .. image:: https://pypip.in/v/sact.epoch/badge.png
     :target: https://pypi.python.org/pypi/epoch
 
@@ -9,9 +11,9 @@ sact.epoch
     :target: http://travis-ci.org/0k/sact.epoch
 
 
-``sact.epoch`` is a Python library using Zope Component Architecture providing 
+``sact.epoch`` is a Python library using Zope Component Architecture providing
 legacy ``datetime.datetime`` subclass that allows a simple time abstraction
-mecanism, allowing code that would use it as reference to be diverted both 
+mecanism, allowing code that would use it as reference to be diverted both
 on the local time zone and the real time.
 
 
@@ -27,7 +29,7 @@ using ``sact.epoch.Time``:
   (that was rather complicated with ``datetime``, see:
   http://stackoverflow.com/questions/5067218/get-utc-timestamp-in-python-with-datetime,
   and eventually made it in python 3.3, without clearing all the complexity of naive
-  datetimes... 
+  datetimes...
   http://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp,)
 - you'll be able to test code that make use of ``.now()`` by setting
   or stopping current time as seen be ``.now()`` function without touching
@@ -73,17 +75,17 @@ object::
     >>> Time(d)
     <Time 1970-01-01 00:00:00+00:00>
 
-Or use ``strptime()``, notice that we need a new ``src_tz`` param,
+Or use ``strptime()``, notice that we need a new ``hint_src_tz`` param,
 which informs the code in which timezone the parsed string should be
 considered::
 
-    >>> Time.strptime('2000-01-01', '%Y-%m-%d', src_tz=UTC())
+    >>> Time.strptime('2000-01-01', '%Y-%m-%d', hint_src_tz=UTC())
     <Time 2000-01-01 00:00:00+00:00>
 
 
 Manageable clock for tests
 --------------------------
-    
+
 There are code that deals with the current system time and
 timezone. ``sact.epoch`` will give you mean to divert these calls so
 as to fix time and timezone so that test output remain checkable.
@@ -146,13 +148,50 @@ Remember that in the following tests, local time zone will be the
 Provides handy shortcuts
 ------------------------
 
-Let say that::
+Instanciation
+^^^^^^^^^^^^^
 
-    >>> t = Time(1980, 01, 01)
+You can instanciate a new ``Time`` with several formats:
+
+With a string (provided you give a timezone in the string or as ``hint_src_tz``)::
+
+    >>> Time("2010-10-01 10:00+01:00")
+    <Time 2010-10-01 10:00:00+01:00>
+    >>> Time("2010-10-20", hint_src_tz=UTC())
+    <Time 2010-10-20 00:00:00+00:00>
+
+With a partial string, remember the we are in::
+
+    >>> Time.now()
+    <Time 1970-01-01 00:00:00+00:00>
+    >>> Time("10h00", relative=Time.now())
+    <Time 1970-01-01 10:00:00+00:00>
+
+If not specified, it uses ``Time.now()`` as reference date to infer
+missing element of the given date string::
+
+    >>> Time("Thu 10:36", hint_src_tz=UTC())
+    <Time 1970-01-01 10:36:00+00:00>
+
+As it remains a ``datetime.datetime`` sub-class you can instanciate it
+like a ``datetime``::
+
+    >>> Time(1980, 01, 02)
+    <Time 1980-01-02 00:00:00+00:00>
+
+
+Properties
+^^^^^^^^^^
 
 Getting timestamp from a datetime was nightmarish. Now simply::
 
+    >>> t = Time(1980, 01, 01)
     >>> t.timestamp
+    315532800
+
+or (as an alias)::
+
+    >>> t.ts
     315532800
 
 And of course::
@@ -161,13 +200,13 @@ And of course::
     True
 
 As a matter of fact, ``.fromtimestamp`` is equivalent to
-``.utcfromtimestamp``. If you want system local time from a timestamp
-you could::
+``.utcfromtimestamp``. (Let's repeat it: timestamp should ALWAYS be
+considered UTC). If you want system local time from a timestamp you
+could::
 
     >>> Time.fromtimestamp(t.timestamp).local
     <Time 1980-01-01 00:05:00+00:05>
 
-    
 Getting the local/utc zoned time (not changing the time, only the
 timezone)::
 
@@ -188,6 +227,12 @@ Getting some common representations::
     >>> t.iso
     '1980-01-01 00:00:00+00:00'
 
+This last string formatting of a date is complete, and you can easily get
+a accurate ``sact.epoch.Time`` object with it, by direct instanciation:
+
+    >>> Time(t.iso) == t
+    True
+
 Warning, these representation will loose the tz info::
 
     >>> t.short        ## warning: this representation does not include tz info
@@ -197,30 +242,61 @@ Warning, these representation will loose the tz info::
     >>> t.short_short  ## warning: this representation does not include tz info
     '1980-01-01 00:00'
 
-``Time.strptime()`` now asks for the source timezone info::
+As they don't provide the timezone's information, you can't instanciate them
+directly without providing an hint thanks to giving the timezone, or by giving
+a relative datetime from which the timezone will be taken::
 
-    >>> Time.strptime('15:08', '%H:%M', src_tz=TzLocal())
+    >>> Time(t.short)
+    Traceback (most recent call last):
+    ...
+    ValueError: No timezone hinted, nor found.
+    >>> Time(t.short, hint_src_tz=UTC())
+    <Time 1980-01-01 00:00:00+00:00>
+
+strptime
+^^^^^^^^
+
+
+``Time.strptime()`` was modified from the ``datetime.datetime``
+version, it now asks for the source timezone info::
+
+    >>> Time.strptime('15:08', '%H:%M', hint_src_tz=TzLocal())
     <Time 1900-01-01 15:03:00+00:00>
 
 Notice that the ``Time`` instance is in UTC, so ``15:08`` in implicit
-local time zone, became ``15:03`` in UTC. If you wanted a the local
+local time zone, became ``15:03`` in UTC. If you wanted the local
 ``Time`` instance instead::
 
-    >>> Time.strptime('15:08', '%H:%M', src_tz=TzLocal()).local
+    >>> Time.strptime('15:08', '%H:%M', hint_src_tz=TzLocal()).local
     <Time 1900-01-01 15:08:00+00:05>
 
 The local timezone detection is of course divertable, and you can
-also set it thanks to a new argument named ``src_tz``::
+also set it thanks to a new argument named ``hint_src_tz``::
 
-    >>> Time.strptime('15:08', '%H:%M', src_tz=UTC())
+    >>> Time.strptime('15:08', '%H:%M', hint_src_tz=UTC())
     <Time 1900-01-01 15:08:00+00:00>
 
 Notice also, that we didn't specify 1900 as the year, but it was used. In
 ``Time.strptime()`` you can actually set the reference::
 
     >>> t = Time(2000, 01, 01)
-    >>> Time.strptime('15:08', '%H:%M', src_tz=UTC(), relative=t)
+    >>> Time.strptime('15:08', '%H:%M', hint_src_tz=UTC(), relative=t)
     <Time 2000-01-01 15:08:00+00:00>
+
+
+How to unregister
+----------------------
+
+You can unregister the diverting mecanism::
+
+    >>> TzLocal()
+    <TimeZone: Test>
+    >>> gsm.unregisterUtility(clock)
+    True
+    >>> gsm.unregisterUtility(testTimeZone, ITimeZone, 'local')
+    True
+    >>> TzLocal()
+    <TimeZone: System>
 
 
 INSTALLATION
