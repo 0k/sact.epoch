@@ -14,7 +14,7 @@ from zope.component import queryUtility
 from .interfaces import ITime, IClock
 from .timezone import UTC, TzLocal
 from .strptime import strptime
-from .utils import datetime_to_timestamp
+from .utils import dt2ts
 
 
 def deprecation(message):
@@ -660,7 +660,7 @@ class Time(datetime.datetime):
             1
 
         """
-        return datetime_to_timestamp(self)
+        return dt2ts(self)
 
     @property
     def utc(self):

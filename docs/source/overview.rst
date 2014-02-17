@@ -90,12 +90,12 @@ object creation and the moment you want to get a timestamp, if this is the case
 you can safely use::
 
   >>> import sact.epoch.utils
-  >>> utc_timestamp = sact.epoch.utils.datetime_to_timestamp(now)
+  >>> utc_timestamp = sact.epoch.utils.dt2ts(now)
 
-``datetime_to_timestamp`` will ask your system for the number of seconds
-between EPOCH in the current timezone and the provided datetime. This is why
-you must ensure that datetime object was created when the same TimeZone on the
-system than when you run this function.
+``dt2ts`` will ask your system for the number of seconds between EPOCH
+in the current timezone and the provided datetime. This is why you
+must ensure that datetime object was created when the same TimeZone on
+the system than when you run this function.
 
 No doctest is given to your eyes on the content of the variable
 ``utc_timestamp`` because the output depends on the current time. And this
