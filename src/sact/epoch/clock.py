@@ -660,8 +660,8 @@ class Time(datetime.datetime):
         ^^^^^^^^
 
         There's a ``relative`` option which if non-False, will fill
-        non given time with the given time instance as reference (or now in
-        local time zone if the relative value is set to True)::
+        non given time with the given time instance as relative (or now in
+        local time zone if the ``relative`` value is set to True)::
 
             >>> t1 = Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
             >>> clock.ts = t1.timestamp
@@ -674,7 +674,7 @@ class Time(datetime.datetime):
             >>> Time.strptime('15:08', '%H:%M', ttz, relative=True)
             <Time 2000-01-01 15:03:00+00:00>
 
-        We could have also set the reference time directly as a value in the
+        We could have also set the relative time directly as a value in the
         ``relative`` argument::
 
             >>> t2 = Time.strptime('1990-05-05', '%Y-%m-%d', UTC())
@@ -730,12 +730,6 @@ class Time(datetime.datetime):
 
     @property
     def utc(self):
-        """Returns the UTC version of the same time.
-
-        This doesn't change the actual time being stored, but only it's
-        timezone.
-
-        """
         return self.astimezone(UTC())
 
     @property
