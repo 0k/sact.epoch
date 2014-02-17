@@ -9,12 +9,20 @@ import _strptime
 from datetime import date as datetime_date
 
 
+def first(l, predicate):
+    for e in l:
+        if predicate(e):
+            return e
+    raise ValueError("No element in list matches given predicate.")
+
+
 ## Copy of ``_strptime()`` from python 2.7.3 (default, Apr 20 2012, 22:39:59)
 ## except for optional argument ``reference`` so as to add the option of a
 ## default ground time.
 
 def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
-             reference=(1900, 1, 1, 0, 0, 0, -1, -1, -1)):
+             reference=(1900, 1, 1, 0, 0, 0, -1, -1, -1),
+             complete_with_zeroes=True):
     """Return time struct and microseconds based on an input and format string
 
     An optional ``reference`` is set by default to 1900-01-01 00:00:00.
@@ -27,8 +35,21 @@ def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
 
         >>> from sact.epoch import strptime
         >>> strptime('13:05', '%H:%M',
-        ...          reference=((2000, 1, 1, 0, 0, 0, -1, -1, -1), 5))
+        ...          reference=((2000, 1, 1, 0, 0, 30, -1, -1, -1), 5))
+        (time.struct_time(tm_year=2000, tm_mon=1, tm_mday=1, tm_hour=13, tm_min=5, tm_sec=0, tm_wday=5, tm_yday=1, tm_isdst=-1), 0)
+
+    Notice how all the left most values (the biggest weight value)
+    where used from the given reference, and how the left most value
+    (least weight values) was zeroed. The middle part is what was
+    parsed.
+
+    You can switch of the zeroing of the left most part:
+
+        >>> strptime('13:05', '%H:%M',
+        ...          reference=((2000, 1, 1, 0, 0, 0, -1, -1, -1), 5),
+        ...          complete_with_zeroes=False)
         (time.struct_time(tm_year=2000, tm_mon=1, tm_mday=1, tm_hour=13, tm_min=5, tm_sec=0, tm_wday=5, tm_yday=1, tm_isdst=-1), 5)
+
 
     """
     with _strptime._cache_lock:
@@ -165,6 +186,17 @@ def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
         week_starts_Mon = True if week_of_year_start == 0 else False
         julian = _strptime._calc_julian_from_U_or_W(year, week_of_year, weekday,
                                             week_starts_Mon)
+    if complete_with_zeroes:
+        idxs = ("j", "Y", "mBb", "UW", "dAaw", "HI", "M", "S", "f")
+        specified = [idxs.index(gk)
+                     for gk in [first(idxs, lambda key_group: k in key_group)
+                                for k in found_dict.iterkeys()]]
+        rightmost_specified = max(specified) if len(specified) else 0
+        base = (1900, 1, 1, 1, 0, 0, 0, 0)
+        values = year, month, week_of_year, day, hour, minute, second, fraction
+        year, month, week_of_year, day, hour, minute, second, fraction = \
+               values[:rightmost_specified] + base[rightmost_specified:]
+
     # Cannot pre-calculate datetime_date() since can change in Julian
     # calculation and thus could have different value for the day of the week
     # calculation.
