@@ -472,14 +472,14 @@ class Time(datetime.datetime):
         return "<Time %s>" % self
 
     @classmethod
-    def from_datetime(cls, dt):
+    def from_datetime(cls, dt, hint_src_tz=None):
         """Convert a datetime object with timezone to a Time object
 
         This method provides a handy way to convert datetime objects to Time
         objects:
 
             >>> import datetime
-            >>> from sact.epoch import UTC
+            >>> from sact.epoch import UTC, TzLocal
             >>> dt = datetime.datetime(2000, 1, 1, tzinfo=UTC())
             >>> Time.from_datetime(dt)
             <Time 2000-01-01 00:00:00+00:00>
@@ -490,16 +490,33 @@ class Time(datetime.datetime):
             >>> Time.from_datetime(datetime.datetime.now())
             Traceback (most recent call last):
             ...
-            ValueError: no timezone set for ...
+            ValueError: No timezone hinted, nor found.
+
+        You can provide yourself this timezone information thanks to
+        the 'hint_src_tz' argument:
+
+            >>> Time.from_datetime(datetime.datetime(2000, 1, 1),
+            ...     hint_src_tz=UTC())
+            <Time 2000-01-01 00:00:00+00:00>
+
+        However, this remains an hint, and if timezone can be found in
+        the datetime, the 'hint_src_tz' argument will be ignored:
+
+            >>> Time.from_datetime(
+            ...      datetime.datetime(2000, 1, 1, tzinfo=UTC()),
+            ...      hint_src_tz=TzLocal())
+            <Time 2000-01-01 00:00:00+00:00>
+
 
         """
 
-        if dt.tzinfo is None:
-            raise ValueError("no timezone set for %r" % dt)
+        tzinfo = dt.tzinfo if dt.tzinfo else hint_src_tz
+        if tzinfo is None:
+            raise ValueError("No timezone hinted, nor found.")
 
         return cls(dt.year, dt.month, dt.day, dt.hour,
                    dt.minute, dt.second, dt.microsecond,
-                   dt.tzinfo)
+                   tzinfo)
 
     def __add__(self, delta):
         """Override datetime '+' to return a Time object
