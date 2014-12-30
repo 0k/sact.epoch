@@ -143,6 +143,11 @@ function set_version_setup_py() {
 }
 
 
+if [ "$1" = "--get-version" ]; then
+    get_current_version
+    exit 0
+fi
+
 if type -p gitchangelog > /dev/null 2>&1; then
     "$gitchangelog" > docs/source/changelog.rst
     if [ "$?" != 0 ]; then
@@ -162,4 +167,4 @@ fi
 
 
 echo "Getting bootstrap.py"
-rm -f bootstrap.py && wget http://python-distribute.org/bootstrap.py
+rm -f bootstrap.py && wget http://downloads.buildout.org/2/bootstrap.py

@@ -1,3 +1,2 @@
-recursive-include docs/source/ *
-recursive-include src/ *
+include docs/source/*
 prune docs/build/
