@@ -3,7 +3,7 @@ import time
 
 from .interfaces import ITimeZone
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.component import queryUtility
 
 
@@ -27,6 +27,7 @@ def is_dst(dt):
     return tt.tm_isdst > 0
 
 
+@implementer(ITimeZone)
 class UTC(datetime.tzinfo):
     """Represent the UTC timezone.
 
@@ -35,8 +36,6 @@ class UTC(datetime.tzinfo):
     XXXvlab: pytz.utc isn't better ?
 
     """
-
-    implements(ITimeZone)
 
     def utcoffset(self, dt):
         return ZERO
@@ -51,6 +50,7 @@ class UTC(datetime.tzinfo):
         return "<TimeZone: UTC>"
 
 
+@implementer(ITimeZone)
 class TzSystem(datetime.tzinfo):
     """Get the timezone locale of the system. It is used for datetime object.
 
@@ -71,8 +71,6 @@ class TzSystem(datetime.tzinfo):
     offset in consequence.
 
     """
-
-    implements(ITimeZone)
 
     # Get the right offset with DST or not
     stdoffset = datetime.timedelta(seconds=(- time.timezone))
@@ -103,10 +101,9 @@ class TzSystem(datetime.tzinfo):
         return "<TimeZone: System>"
 
 
+@implementer(ITimeZone)
 class TzTest(datetime.tzinfo):
     """Timezone crafted for tests"""
-
-    implements(ITimeZone)
 
     def utcoffset(self, dt):
         return datetime.timedelta(hours=0, minutes=5)

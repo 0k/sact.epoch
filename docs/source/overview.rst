@@ -124,16 +124,18 @@ system local time, but will be stored in UTC timezone.
 
 datetime objects::
 
-  >>> print repr(datetime.datetime.now().tzinfo)
+  >>> from __future__ import print_function
+
+  >>> print(repr(datetime.datetime.now().tzinfo))
   None
-  >>> print repr(datetime.datetime(1970, 1, 1, 1, 1).tzinfo)
+  >>> print(repr(datetime.datetime(1970, 1, 1, 1, 1).tzinfo))
   None
 
 In comparison, ``sact.epoch.Time`` object will always set a timezone::
 
-  >>> print repr(sact.epoch.Time.now().tzinfo)
+  >>> print(repr(sact.epoch.Time.now().tzinfo))
   <TimeZone: UTC>
-  >>> print repr(sact.epoch.Time(1970, 1, 1, 1, 1).tzinfo)
+  >>> print(repr(sact.epoch.Time(1970, 1, 1, 1, 1).tzinfo))
   <TimeZone: UTC>
 
 Of course, as Time object is aware, a simple ``timestamp`` property is
@@ -156,7 +158,7 @@ Say your code is::
   >>> db_timestamp = epoch.timestamp
   >>> def is_it_ok():
   ...    now = sact.epoch.Time.now().timestamp
-  ...    print 0 == ((now - db_timestamp) % 2)
+  ...    print(0 == ((now - db_timestamp) % 2))
 
 ``is_it_ok`` function code should print ``True`` if number of seconds between
 now and epoch is odd.
@@ -218,7 +220,7 @@ When displaying times to the user, it is appreciated to show the time in local
 timezone::
 
   >>> def what_time_is_it():
-  ...     print sact.epoch.Time.now().local.iso
+  ...     print(sact.epoch.Time.now().local.iso)
 
 Notice the use of the property ``local`` which returns a new ``Time``
 instance set to the same moment in time but in the system local

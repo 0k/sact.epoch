@@ -1,13 +1,13 @@
 language: python
 python:
   - "2.7"
-  - "2.6"
+  - "3.4"
 install:
-  - ./autogen.sh
-  - python bootstrap.py
-  - bin/buildout
-  - python setup.py install ## required for python -m doctest
+  - ./autogen.sh && python bootstrap.py && bin/buildout
+  - python setup.py develop easy_install "sact.epoch[test]"
+  - pip install coverage coveralls
 script:
-  - python -m doctest -d README.rst
-  - bin/test -vp1
   - ./autogen.sh && python setup.py sdist --formats=gztar && pip install dist/sact.epoch-$(./autogen.sh --get-version | tr "_" "-").tar.gz --upgrade
+  - bin/test
+after_success:
+  - coveralls

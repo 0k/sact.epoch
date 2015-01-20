@@ -33,7 +33,7 @@ def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
 
     Please note that weekday and julian will be ignored.
 
-        >>> from sact.epoch import strptime
+        >>> from sact.epoch.strptime import strptime
         >>> strptime('13:05', '%H:%M',
         ...          reference=((2000, 1, 1, 0, 0, 30, -1, -1, -1), 5))
         (time.struct_time(tm_year=2000, tm_mon=1, tm_mday=1, tm_hour=13, tm_min=5, tm_sec=0, tm_wday=5, tm_yday=1, tm_isdst=-1), 0)
@@ -65,7 +65,7 @@ def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
                 format_regex = _strptime._TimeRE_cache.compile(format)
             # KeyError raised when a bad format is found; can be specified as
             # \\, in which case it was a stray % but with a space after it
-            except KeyError, err:
+            except KeyError as err:
                 bad_directive = err.args[0]
                 if bad_directive == "\\":
                     bad_directive = "%"
@@ -93,7 +93,7 @@ def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
     week_of_year = -1
     week_of_year_start = -1
     found_dict = found.groupdict()
-    for group_key in found_dict.iterkeys():
+    for group_key in found_dict.keys():
         # Directives not explicitly handled below:
         #   c, x, X
         #      handled by making out of other directives
@@ -190,7 +190,7 @@ def strptime(data_string, format="%a %b %d %H:%M:%S %Y",
         idxs = ("j", "Y", "mBb", "UW", "dAaw", "HI", "M", "S", "f")
         specified = [idxs.index(gk)
                      for gk in [first(idxs, lambda key_group: k in key_group)
-                                for k in found_dict.iterkeys()]]
+                                for k in found_dict.keys()]]
         rightmost_specified = max(specified) if len(specified) else 0
         base = (1900, 1, 1, 1, 0, 0, 0, 0)
         values = year, month, week_of_year, day, hour, minute, second, fraction

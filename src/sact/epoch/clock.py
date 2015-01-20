@@ -9,13 +9,29 @@ import time
 import warnings
 import dateutil.parser
 
-from zope.interface import classProvides, implements
+from zope.interface import provider, implementer
 from zope.component import queryUtility
 
 from .interfaces import ITime, IClock
 from .timezone import UTC, TzLocal
 from .strptime import strptime
 from .utils import dt2ts
+
+
+try:
+    unicode = unicode
+except NameError:  ## pragma: no cover
+    # 'unicode' is undefined, must be Python 3
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str,bytes)
+else:  ## pragma: no cover
+    # 'unicode' exists, must be Python 2
+    str = str
+    unicode = unicode
+    bytes = str
+    basestring = basestring
 
 
 DEFAULT_PARSER_FORMATS = [
@@ -83,6 +99,7 @@ def round_date(date):
     return date
 
 
+@implementer(IClock)
 class Clock(object):
     """Time Factory
 
@@ -109,8 +126,6 @@ class Clock(object):
 
     """
 
-    implements(IClock)
-
     @property
     def time(self):
         """Should return later a Time object"""
@@ -122,8 +137,9 @@ class Clock(object):
         return time.time()
 
 
+@implementer(IClock)
 class ManageableClock(Clock):
-    """Creates a manageable time object
+    r"""Creates a manageable time object
 
     Can be used to control what time it is. Start/Stop method can
     start/stop time, and wait/set will alter current time.
@@ -224,9 +240,17 @@ class ManageableClock(Clock):
         ...    'clock should have been running and thus timestamp should be greater than 600.' \
         ...    'It was %r.' % ts
 
-    """
+    With no specific argument, it'll be casted to int and interpreted
+    in seconds:
 
-    implements(IClock)
+        >>> mc.stop()
+        >>> mc.ts = 0
+        >>> mc.wait(3)
+        >>> mc.ts
+        3
+
+
+    """
 
     def __init__(self):
         self.delta = 0
@@ -280,7 +304,7 @@ class ManageableClock(Clock):
 DefaultClock = Clock()
 DefaultManageableClock = ManageableClock()
 
-
+@provider(ITime)
 class Time(datetime.datetime):
     """Time Factory
 
@@ -310,18 +334,24 @@ class Time(datetime.datetime):
     the checkings but notice that some localized methods are then not garanteed
     to work and have reportedly failed on dates earlier than year 1900::
 
-      >>> Time(1, 1, 1)
-      Traceback (most recent call last):
-      ...
-      ValueError: Encountered datetime method limitation: ...
+    On python 2:
 
+      # >>> Time(1, 1, 1)
+      # Traceback (most recent call last):
+      # ...
+      # ValueError: Encountered datetime method limitation: ...
+
+    But this does not occur on python 3:
+
+      # >>> Time(1, 1, 1)
+      # <Time 0001-01-01 00:00:00+00:00>
 
     Usage
     =====
 
     This is quite straightforward to use:
 
-        >>> from sact.epoch.clock import Time
+        >>> from sact.epoch import Time
         >>> Time.now()
         <Time ...+00:00>
 
@@ -369,7 +399,7 @@ class Time(datetime.datetime):
 
     It takes same arguments than datetime legacy object:
 
-        >>> Time(1980, 01, 01)
+        >>> Time(1980, 1, 1)
         <Time 1980-01-01 00:00:00+00:00>
 
     Notice that in this case, it takes the UTC timezone.
@@ -377,7 +407,7 @@ class Time(datetime.datetime):
     Additionnaly it can take a real datetime as argument:
 
         >>> from datetime import datetime
-        >>> d = datetime(1970, 01, 01, tzinfo=testTimeZone)
+        >>> d = datetime(1970, 1, 1, tzinfo=testTimeZone)
         >>> t = Time(d)
         >>> t
         <Time 1970-01-01 00:00:00+00:05>
@@ -396,7 +426,7 @@ class Time(datetime.datetime):
     However, if you don't provide the timezone in the string representation
     or in the datetime (which is then called naive-datetimes):
 
-        >>> Time(datetime(1970, 01, 01))
+        >>> Time(datetime(1970, 1, 1))
         Traceback (most recent call last):
         ...
         ValueError: No timezone hinted, nor found.
@@ -409,7 +439,7 @@ class Time(datetime.datetime):
     Hopefully, you can provide an hint to what is the intended timezone:
 
         >>> from sact.epoch import UTC
-        >>> Time(datetime(1970, 01, 01), hint_src_tz=UTC())
+        >>> Time(datetime(1970, 1, 1), hint_src_tz=UTC())
         <Time 1970-01-01 00:00:00+00:00>
         >>> Time('2000-01-01 00:00:00', hint_src_tz=UTC())
         <Time 2000-01-01 00:00:00+00:00>
@@ -418,6 +448,15 @@ class Time(datetime.datetime):
 
         >>> Time('15:30', hint_src_tz=UTC())
         <Time 1970-01-01 15:30:00+00:00>
+
+    Avoid using more than one argument when providing a string, and be
+    careful for instance to name the keyword argument::
+
+        >>> Time('15:30', UTC())
+        Traceback (most recent call last):
+        ...
+        SyntaxError: Too much positional arguments when using Time instanciation by string.
+
 
     Representations
     ^^^^^^^^^^^^^^^
@@ -437,6 +476,10 @@ class Time(datetime.datetime):
         >>> t.short_short
         '1970-01-01 00:00'
 
+    timetuples:
+
+        >>> t.tt
+        time.struct_time(tm_year=1970, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=3, tm_yday=1, tm_isdst=0)
 
     These are DEPRECATED usage::
 
@@ -463,22 +506,20 @@ class Time(datetime.datetime):
     time) of a Time instance by using ``astimezone()`` which stems
     out underlying datetime API. We provide here 2 handy shortcuts:
 
-        >>> Time(1980, 01, 01).local
+        >>> Time(1980, 1, 1).local
         <Time 1980-01-01 00:05:00+00:05>
-        >>> Time(1980, 01, 01).utc
+        >>> Time(1980, 1, 1).utc
         <Time 1980-01-01 00:00:00+00:00>
 
     These are DEPRECATED usage::
 
-        >>> Time(1980, 01, 01).aslocal
+        >>> Time(1980, 1, 1).aslocal
         <Time 1980-01-01 00:05:00+00:05>
-        >>> Time(1980, 01, 01).asutc
+        >>> Time(1980, 1, 1).asutc
         <Time 1980-01-01 00:00:00+00:00>
 
 
     """
-
-    classProvides(ITime)
 
     def __new__(cls, *args, **kwargs):
         if len(args) and isinstance(args[0], datetime.datetime):
@@ -519,7 +560,7 @@ class Time(datetime.datetime):
             ## Check that the architecture can call localized methods
             try:
                 dt.strftime('%Y')
-            except ValueError, e:
+            except ValueError as e:  ## pragma: no cover
                 raise ValueError("Encountered datetime method limitation:"
                                  " %s" % str(e))
 
@@ -620,6 +661,7 @@ class Time(datetime.datetime):
         utility = queryUtility(IClock, default=DefaultClock)
         return utility.time.replace(tzinfo=UTC())
 
+    ## XXXvlab: to deprecate
     @staticmethod
     def now_lt():
         return Time.now().local
@@ -640,6 +682,7 @@ class Time(datetime.datetime):
     def fromtimestamp(cls, ts, tz=None):
         """Return a UTC datetime from a timestamp.
 
+            >>> from sact.epoch.timezone import testTimeZone
             >>> Time.fromtimestamp(0, tz=testTimeZone)
             <Time 1970-01-01 00:05:00+00:05>
 
@@ -700,7 +743,8 @@ class Time(datetime.datetime):
 
         If source is UTC, then it's the same as the output. No surprise here.
 
-            >>> ttz = testTimeZone
+            >>> from sact.epoch.timezone import testTimeZone as ttz
+
             >>> t0 = Time.strptime('2000-01-01', '%Y-%m-%d',
             ...                    hint_src_tz=ttz)
             >>> t0
@@ -719,6 +763,8 @@ class Time(datetime.datetime):
         There's a ``relative`` option which if non-False, will fill
         non given time with the given time instance as relative (or now in
         local time zone if the ``relative`` value is set to True)::
+
+            >>> clock = queryUtility(IClock)
 
             >>> t1 = Time.strptime('2000-01-01', '%Y-%m-%d', UTC())
             >>> clock.ts = t1.timestamp
@@ -765,6 +811,7 @@ class Time(datetime.datetime):
         This overrides the datetime's method to return a Time object instead of
         a datetime object:
 
+            >>> from sact.epoch.timezone import testTimeZone
             >>> type(Time.now().astimezone(testTimeZone))
             <class 'sact.epoch...Time'>
 

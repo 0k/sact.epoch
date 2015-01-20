@@ -59,7 +59,7 @@ could instanciate them as you instanciated ``datetime``s::
     >>> from sact.epoch import Time
     >>> Time.now()  # doctest: +ELLIPSIS
     <Time ...+00:00>
-    >>> Time(1980, 01, 01)
+    >>> Time(1980, 1, 1)
     <Time 1980-01-01 00:00:00+00:00>
 
 With a difference: there are no naive ``Time``, this means that all
@@ -71,7 +71,7 @@ object::
 
     >>> from sact.epoch.clock import Time, UTC, TzLocal
     >>> from datetime import datetime
-    >>> d = datetime(1970, 01, 01, tzinfo=UTC())
+    >>> d = datetime(1970, 1, 1, tzinfo=UTC())
     >>> Time(d)
     <Time 1970-01-01 00:00:00+00:00>
 
@@ -176,7 +176,7 @@ missing element of the given date string::
 As it remains a ``datetime.datetime`` sub-class you can instanciate it
 like a ``datetime``::
 
-    >>> Time(1980, 01, 02)
+    >>> Time(1980, 1, 2)
     <Time 1980-01-02 00:00:00+00:00>
 
 
@@ -185,7 +185,7 @@ Properties
 
 Getting timestamp from a datetime was nightmarish. Now simply::
 
-    >>> t = Time(1980, 01, 01)
+    >>> t = Time(1980, 1, 1)
     >>> t.timestamp
     315532800
 
@@ -279,7 +279,7 @@ also set it thanks to a new argument named ``hint_src_tz``::
 Notice also, that we didn't specify 1900 as the year, but it was used. In
 ``Time.strptime()`` you can actually set the reference::
 
-    >>> t = Time(2000, 01, 01)
+    >>> t = Time(2000, 1, 1)
     >>> Time.strptime('15:08', '%H:%M', hint_src_tz=UTC(), relative=t)
     <Time 2000-01-01 15:08:00+00:00>
 
