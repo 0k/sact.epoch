@@ -149,7 +149,7 @@ if [ "$1" = "--get-version" ]; then
 fi
 
 if type -p gitchangelog > /dev/null 2>&1; then
-    "$gitchangelog" > docs/source/changelog.rst
+    gitchangelog > docs/source/changelog.rst
     if [ "$?" != 0 ]; then
         echo "Changelog NOT generated. An error occured while running \`\`gitchangelog\`\`." >&2
     else
