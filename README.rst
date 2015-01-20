@@ -4,11 +4,21 @@ sact.epoch
 
 .. :doctest:
 
-.. image:: https://pypip.in/v/sact.epoch/badge.png
-    :target: https://pypi.python.org/pypi/epoch
+.. image:: http://img.shields.io/pypi/v/sact.epoch.svg?style=flat
+   :target: https://pypi.python.org/pypi/sact.epoch/
+   :alt: Latest PyPI version
 
-.. image:: https://secure.travis-ci.org/0k/sact.epoch.png?branch=master
-    :target: http://travis-ci.org/0k/sact.epoch
+.. image:: http://img.shields.io/pypi/dm/sact.epoch.svg?style=flat
+   :target: https://pypi.python.org/pypi/sact.epoch/
+   :alt: Number of PyPI downloads
+
+.. image:: http://img.shields.io/travis/0k/sact.epoch/master.svg?style=flat
+   :target: https://travis-ci.org/0k/sact.epoch/
+   :alt: Travis CI build status
+
+.. image:: http://img.shields.io/coveralls/0k/sact.epoch/master.svg?style=flat
+   :target: https://coveralls.io/r/0k/sact.epoch
+   :alt: Test coverage
 
 
 ``sact.epoch`` is a Python library using Zope Component Architecture providing
